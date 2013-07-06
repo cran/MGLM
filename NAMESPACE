@@ -1,0 +1,14 @@
+exportPattern("^[[:alpha:]]+")
+
+export(ddirm, dgdirm, dmn, dnegmn, kr, 
+	MGLMfit, MGLMreg, MGLMsparsereg, MGLMtune, 
+	rdirm, rgdirm, rnegmn
+)
+
+exportMethods(print, predict)
+
+exportClasses(
+    "MGLMfit",
+    "MGLMreg",
+    "MGLMsparsereg"
+)
