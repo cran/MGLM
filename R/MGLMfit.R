@@ -56,17 +56,20 @@ MGLMfit <- function( data, dist, init, weight,
 	if(dist=="DM"){	
 		if(!missing(init) && length(init)!=d)
 			stop("Dimension of the initial values is not compatible with the data")
-		est <- DMD.DM.fit(data, weight, init, epsilon, maxiters, display)
+		est <- DMD.DM.fit(data=data, init=init, weight=weight, 
+			epsilon=epsilon, maxiters=maxiters, display=display)
 
 	}else if(dist=="GDM"){
 		if(!missing(init) && length(init)!=2*(d-1) )
 			stop("Dimension of the initial values is not compatible with the data")
-		est <- DMD.GDM.fit(data, weight, init, epsilon, maxiters, display)
+		est <- DMD.GDM.fit(data=data, init=init, weight=weight, 
+			epsilon=epsilon, maxiters=maxiters, display=display)
 
 	}else if(dist=="NegMN"){
 		if(!missing(init) && length(init)!=(d+2) )
 			stop("Dimension of the initial values is not compatible with the data")
-		est <- DMD.NegMN.fit(data, weight, init, epsilon, maxiters, display)
+		est <- DMD.NegMN.fit(data=data, init=init, weight=weight, 
+			epsilon=epsilon, maxiters=maxiters, display=display)
 	}
 	
 	##----------------------------------------##
@@ -159,7 +162,7 @@ DMD.DM.fit <- function( data, init, weight,
 				outer(k,rep(1,d))) )
 		denominator <- sum( r/(sum(alpha_hat)+k) )
 		alpha_MM <- alpha_hat*numerator/denominator
-		
+
 		##----------------------------------------##
 		## Newton update
 		a <- sum( r/(sum(alpha_hat)+k)^2 )
