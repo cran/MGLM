@@ -128,7 +128,6 @@ MGLMreg <- function(formula, data, dist, init, weight,
 	    	init <- rbind(alphahat,matrix(0,(p-1),d))
 	    }else if(any(dim(init)!=c(p,d)) )
 			stop("Dimension of the initial values is not compatible with the data")
-			
 	    est <- eval(call("DMD.DM.reg", 
 	    	Y=Y, X=X, weight=weight, init=init, epsilon=epsilon, 
 	    	maxiters=maxiters, display=display, parallel=parallel, cores=cores,
@@ -553,7 +552,6 @@ DMD.DM.reg <- function( Y, init, X, weight,
 	##----------------------------------------##
 	## Begin the main loop
 	while( ((niter <=2)|| ( (ll2-ll1)/(abs(ll1)+1) > epsilon))&(niter<maxiters) ){
-
 		niter <- niter+1
 		ll1 <- lliter[niter-1]
 		tmpvector <- digamma(rowSums(Beta)+m)-digamma(rowSums(Beta))
@@ -610,7 +608,7 @@ DMD.DM.reg <- function( Y, init, X, weight,
 				return(w[i]* A[i,]%x%B[i,] ) , dalpha, X, weight ) )
 		temp.try <- NULL
 		try(temp.try <- solve(Hessian, dl), silent=TRUE)
-		if(is.null(temp.try)){
+		if(is.null(temp.try)|any(is.nan(temp.try))){
 			ll.Newton <- NA
 		}else if(is.numeric(temp.try)){
 			beta_Newton <- beta - matrix(temp.try,p,d)
