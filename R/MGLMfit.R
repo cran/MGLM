@@ -173,11 +173,15 @@ DMD.DM.fit <- function( data, init, weight,
 
 		##----------------------------------------##
 		## Choose the update 
-		if( any(alpha_Newton<0)){
-		alpha_hat <- alpha_MM 
-		if(display) print(paste("Iteration", niter, "MM update", sep=" "))
-		}
-		else{
+		if( any(is.na(alpha_Newton)) | any(alpha_Newton<0) ){
+			if(is.nan(alpha_MM) || is.na(alpha_MM) || any(alpha_MM==Inf)){
+				stop("GDM model is not suitable for this dataset. 
+				Please use anoter model or privide initial value.")
+				}else{
+					alpha_hat <- alpha_MM 
+					if(display) print(paste("Iteration", niter, "MM update", sep=" "))
+				}
+		}else{
 		LL.MM <- -sum(r*log(sum(alpha_MM)+k))+
 				sum(s*log(outer(k,alpha_MM,"+")))+log_term
 		LL.Newton <- -sum(r*log(sum(alpha_Newton)+k))+
