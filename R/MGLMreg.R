@@ -46,6 +46,22 @@ MGLMreg <- function(formula, data, dist, init, weight,
 	if(is.null(colnames(Y))) colnames(Y) <- paste("Col", 1:ncol(Y), sep="_")
 	
 	##----------------------------------------##
+	## Give warnings about zero rows
+	if(dist!="NegMN"){
+	  if( any(rowSums(Y)==0) ){ 
+	    rmv <- rowSums(Y)==0
+	    warning(paste(sum(rmv), " rows are removed because the row sums are 0","\n", sep=""))
+	    Y <- Y[!rmv, ]
+	    X <- X[!rmv, ]
+	  }
+	  if( any(colSums(Y)==0) ){ 
+	    rmv <- colSums(Y)==0
+	    warning(paste(sum(rmv), " columns are removed because the column sums are 0","\n", sep=""))
+	    Y <- Y[, !rmv]
+	  }
+	}
+  
+	##----------------------------------------##
 	## Check dimensions
 	N <- nrow(Y)
 	d <- ncol(Y)
@@ -69,21 +85,9 @@ MGLMreg <- function(formula, data, dist, init, weight,
 	##----------------------------------------##
 	## Input missing weight and cores
 	if(missing(cores)){
-	if(parallel) cores <- floor(detectCores()/2) else cores<-NULL
+  	if(parallel) cores <- floor(detectCores()/2) else cores<-NULL
 	}
 	
-	##----------------------------------------##
-	## Give warnings about zero rows
-	if(dist!="NegMN"){
-	if( any(rowSums(Y)==0) ){ 
-		rmv <- sum(rowSums(Y)==0)
-		warning(paste(rmv, " rows are removed because the row sums are 0", sep=""))
-	}
-	if( any(colSums(Y)==0) ){ 
-		rmv <- sum(colSums(Y)==0)
-		warning(paste(rmv, " columns are removed because the column sums are 0", sep=""))
-	}
-	}
 	##----------------------------------------##
 	## Fit the model
 	if(dist!="GDM"){
@@ -96,120 +100,129 @@ MGLMreg <- function(formula, data, dist, init, weight,
 				cl <- NULL
 				sys <- NULL
 		}
-	if(dist=="MN"){
-  	##----------------------------------------##
-	## MN	
-		if(N<p*(d-1))
-			warning("Sample size is smaller than the number of parameters.")
+	  if(dist=="MN"){
+    	##----------------------------------------##
+  	  ## MN	
+  		if(N<p*(d-1))
+  			warning(paste("Sample size is smaller than the number of parameters.", "\n", sep=""))
+  	
+  		if(missing(init)){
+  			init <- matrix(0, p, (d-1) )
+  			for( i in 1:(d-1)){
+  				init[,i] <- glm.fit(X, Y[,i], family=poisson(link = "log"), 
+  				weights=weight)$coefficients
+  			}
+  		}else if(any(dim(init)!=c(p,(d-1))) )
+  			stop("Dimension of the initial values is not compatible with the data")
+  				
+  		est <- eval(call("DMD.MN.reg", 
+  			Y=Y, X=X, weight=weight, init=init, epsilon=epsilon, 
+  			maxiters=maxiters, display=display, parallel=parallel, cores=cores,
+  			cl=cl, sys=sys))
+	   }else if(dist=="DM"){
+      ##----------------------------------------##
+    	## DM
+  	 	if(N<p*d)
+  			warning(paste("Sample size is smaller than the number of parameters","\n",sep=""))
+  		
+      if(missing(init)){
+#   	    	alphahat <- as.vector(
+#   					DMD.DM.fit(data=Y, weight=weight, epsilon=epsilon)$estimate)
+#   	    	alphahat <- alphahat/sum(alphahat)
+#   	    	init <- rbind(alphahat,matrix(0,(p-1),d))
+          init <- matrix(0.1, p, d)
+          options(warn=-1)
+          for(j in 1:d){
+  	    	  fit <- glm.fit(x=X, y=Y[,j]/rowSums(Y),  family=binomial(link = "logit"))
+  	    	  init[, j] <- fit$coefficients
+  	    	}
+          options(warn=ow)
+  	    }else if(any(dim(init)!=c(p,d)) ){
+  			  stop("Dimension of the initial values is not compatible with the data")
+  	    }
+      est <- eval(call("DMD.DM.reg", 
+  	   	Y=Y, X=X, weight=weight, init=init, epsilon=epsilon, 
+  	   	maxiters=maxiters, display=display, parallel=parallel, cores=cores,
+  			cl=cl, sys=sys))			
+    }else if(dist=="NegMN"){ 
+      ##----------------------------------------##
+      ## NegMN
+  		if(N<p*(d+1))
+  			warning(paste("Sample size is smaller than the number of parameters", "\n", sep=""))
+  		
+  		if(regBeta){
+  			if(missing(init)){
+  				alpha_init <- matrix(0, p, d)
+   				for(i in 1:d){
+  				alpha_init[,i]<-glm.fit(X, Y[,i],family=poisson(link="log"),
+  						weights=weight)$coefficients
+  				}
+  				beta_init <- glm.fit(X,(rowSums(Y)+10), family=quasipoisson(link="log"), 
+  						weights=weight)$coefficients
+  				init <- cbind(alpha_init, beta_init)
+  			}else{
+  				if(any(dim(init)!=c(p,(d+1))) )
+  				stop("Dimension of the initial values is not compatible with the data.")
+  				else{
+  					alpha_init <- init[, 1:d]
+  					beta_init <- init[, (d+1)]
+  				}
+  			}
+  			est <- eval(call("DMD.NegMN.reg", 
+  				Y=Y,  init=init, X=X, weight=weight, epsilon=epsilon, 
+  				maxiters=maxiters, display=display, parallel=parallel, cores=cores,
+  				cl=cl, sys=sys))	
+  		}else{
+  			if(missing(init)){	
+  				init <- matrix(0, p,d)
+  				for(i in 1:d){
+  				init[,i]<-glm.fit(X, Y[,i],family=poisson(link="log"),
+    						weights=weight)$coefficients
+    				}
+    			}else{
+    				if(any(dim(init)!=c(p,d)))
+    				stop("Dimension of the initial values is not compatible with the data.")	
+    			}
+    			est <- eval(call("DMD.NegMN.Alpha.reg", 
+    				Y=Y,  init=init,  X=X, weight=weight, epsilon=epsilon, 
+    				maxiters=maxiters, display=display, parallel=parallel, cores=cores,
+    				cl=cl, sys=sys))
+      }
+    }
+    if(parallel) 		stopCluster(cl)  
+  ##----------------------------------------##
+  ## GDM
+  }else if(dist=="GDM"){ 
+  		if(d==2) 
+  			stop("When d=2, GDM model is equivilant to DM model, please use dist='DM'.")
+  		if(parallel){
+  			cl <- makeCluster (getOption ("cl.cores", cores) )
+  			clusterExport(cl, "DMD.DM.reg") 
+  			clusterExport(cl, "ddirm")
+  			sys <- Sys.info()
+  			sys <- sys[1]
+  		}else{
+  			cl <- NULL
+  			sys <- NULL
+  		}
 	
-		if(missing(init)){
-			init <- matrix(0, p, (d-1) )
-			for( i in 1:(d-1)){
-				init[,i] <- glm.fit(X, Y[,i], family=poisson(link = "log"), 
-				weights=weight)$coefficients
-			}
-		}else if(any(dim(init)!=c(p,(d-1))) )
-			stop("Dimension of the initial values is not compatible with the data")
-				
-		est <- eval(call("DMD.MN.reg", 
-			Y=Y, X=X, weight=weight, init=init, epsilon=epsilon, 
-			maxiters=maxiters, display=display, parallel=parallel, cores=cores,
-			cl=cl, sys=sys))
-	}else if(dist=="DM"){
-	##----------------------------------------##
-	## DM
-	 	if(N<p*d)
-			warning("Sample size is smaller than the number of parameters")
-
-		if(missing(init)){
-	    	alphahat <- as.vector(
-					DMD.DM.fit(data=Y, weight=weight, epsilon=epsilon)$estimate)
-	    	alphahat <- alphahat/sum(alphahat)
-	    	init <- rbind(alphahat,matrix(0,(p-1),d))
-	    }else if(any(dim(init)!=c(p,d)) )
-			stop("Dimension of the initial values is not compatible with the data")
-	    est <- eval(call("DMD.DM.reg", 
-	    	Y=Y, X=X, weight=weight, init=init, epsilon=epsilon, 
-	    	maxiters=maxiters, display=display, parallel=parallel, cores=cores,
-			cl=cl, sys=sys))			
-	}else if(dist=="NegMN"){ 
-  	##----------------------------------------##
-	## NegMN
-
-		if(N<p*(d+1))
-			warning("Sample size is smaller than the number of parameters")
-		
-		if(regBeta){
-			if(missing(init)){
-				alpha_init <- matrix(0, p, d)
-				for(i in 1:d){
-				alpha_init[,i]<-glm.fit(X, Y[,i],family=poisson(link="log"),
-						weights=weight)$coefficients
-				}
-				beta_init <- glm.fit(X,(rowSums(Y)+10), family=quasipoisson(link="log"), 
-						weights=weight)$coefficients
-				init <- cbind(alpha_init, beta_init)
-			}else{
-				if(any(dim(init)!=c(p,(d+1))) )
-				stop("Dimension of the initial values is not compatible with the data.")
-				else{
-					alpha_init <- init[, 1:d]
-					beta_init <- init[, (d+1)]
-				}
-			}
-			est <- eval(call("DMD.NegMN.reg", 
-				Y=Y,  init=init, X=X, weight=weight, epsilon=epsilon, 
-				maxiters=maxiters, display=display, parallel=parallel, cores=cores,
-				cl=cl, sys=sys))	
-		}else{
-			if(missing(init)){	
-				init <- matrix(0, p,d)
-				for(i in 1:d){
-				init[,i]<-glm.fit(X, Y[,i],family=poisson(link="log"),
-						weights=weight)$coefficients
-				}
-			}else{
-				if(any(dim(init)!=c(p,d)))
-				stop("Dimension of the initial values is not compatible with the data.")	
-			}
-			est <- eval(call("DMD.NegMN.Alpha.reg", 
-				Y=Y,  init=init,  X=X, weight=weight, epsilon=epsilon, 
-				maxiters=maxiters, display=display, parallel=parallel, cores=cores,
-				cl=cl, sys=sys))	
-		}
-	}
-	if(parallel) 		stopCluster(cl)  
-	##----------------------------------------##
-	## GDM
-	}else if(dist=="GDM"){ 
-		if(d==2) 
-			stop("When d=2, GDM model is equivilant to DM model, please use dist='DM'.")
-		if(parallel){
-			cl <- makeCluster (getOption ("cl.cores", cores) )
-			clusterExport(cl, "DMD.DM.reg") 
-			clusterExport(cl, "ddirm")
-			sys <- Sys.info()
-			sys <- sys[1]
-		}else{
-			cl <- NULL
-			sys <- NULL
-		}
-	
-		if(missing(init)){
-		init <- as.vector(
-				DMD.GDM.fit(data=Y, weight=weight, epsilon=epsilon)$estimate)
-		init <- init/sum(init)
-		init <- rbind(rep(init[1:(d-1)],2), matrix(0, (p-1),2*(d-1)))
-		}else if(any(dim(init)!=c(p, 2*(d-1)))){
-			stop("Dimension of the initial values is not compatible with the data")
-		}else if(N<p*(d-1)*2)
-			warning("Sample size is smaller than the number of parameters")
-		
-		est <- eval(call("DMD.GDM.reg", 
-			Y=Y, X=X, weight=weight, init=init, epsilon=epsilon, 
-			maxiters=maxiters, display=display, parallel=parallel, cores=cores,
-			cl=cl, sys=sys))	
-	}
+  		if(missing(init)){
+#     		init <- as.vector(
+#     				DMD.GDM.fit(data=Y, weight=weight, epsilon=epsilon)$estimate)
+#     		init <- init/sum(init)
+#     		init <- rbind(rep(init[1:(d-1)],2), matrix(0, (p-1),2*(d-1)))
+        init <- NULL
+        
+  		}else if(any(dim(init)!=c(p, 2*(d-1)))){
+  			stop("Dimension of the initial values is not compatible with the data")
+  		}else if(N<p*(d-1)*2)
+  			warning(paste("Sample size is smaller than the number of parameters", "\n", sep=""))
+  		
+  		est <- eval(call("DMD.GDM.reg", 
+  			Y=Y, X=X, weight=weight, init=init, epsilon=epsilon, 
+  			maxiters=maxiters, display=display, parallel=parallel, cores=cores,
+  			cl=cl, sys=sys))	
+	  }
 
 	##----------------------------------------##
 	## Clean up the results
@@ -431,7 +444,7 @@ DMD.MN.reg <- function(Y,init,  X , weight,
 				for(step in 1:5){
 					beta_N <- beta - matrix(update/(2^step), p, d-1)
 					llnew <- dmultn_L(beta_N)
-					if(llnew <= ll.Newton) break
+					if(is.na(llnew)|llnew <= ll.Newton) break
 					ll.Newton <- llnew
           beta_Newton <- beta_N
 				}
@@ -457,7 +470,7 @@ DMD.MN.reg <- function(Y,init,  X , weight,
 	##----------------------------------------##
 	## End of the main loop
 	options(warn=ow)
-
+  
 	##----------------------------------------##
 	## Compute output statistics
 	BIC <- -2*lliter[niter]+log(N)*p*(d-1)	
@@ -466,11 +479,12 @@ DMD.MN.reg <- function(Y,init,  X , weight,
 	P <- cbind(P, 1)
 	P <- P/rowSums(P)
   if(d>2){
-  	H <- sapply(1:N, function(i, p, x) return( p[i,]%x%x[i,]), P[,1:(d-1)], X)
+	H <- kr(P[,1:(d-1)], X)
+#  	H <- sapply(1:N, function(i, p, x) return( p[i,]%x%x[i,]), P[,1:(d-1)], X)
   }else if(d==2){
-    H <- t(P[,1]*X)
+    H <- P[,1]*X
   }
-	H <- H%*%(weight*m*t(H))
+	H <- t(H)%*%(weight*m*H)
 	for(i in 1:(d-1)){
 		id <- (i-1)*p+ (1:p)
 		H[id, id]=H[id, id]-t(X)%*%(weight*m*P[,i]*X)
@@ -486,13 +500,13 @@ DMD.MN.reg <- function(Y,init,  X , weight,
 	dl <- Reduce("+", lapply(1:N, dl.MN_fctn, beta) )
 	if(mean(dl^2)>1e-4){
 		warning(paste("The algorithm doesn't converge within", niter, 
-						"iterations. Please check gradient.", sep=" "))
+						"iterations. Please check gradient.", "\n", sep=" "))
 	} 
 	eig <- eigen(H)$values
-	if(any(eig>0)){
+	if(any(is.complex(eig)) || any(eig>0)){
 		warning("The estimate is a saddle point.")
 	}else if(any(eig==0)){
-		warning("The Hessian matrix is almost singular.")
+		warning(paste("The Hessian matrix is almost singular.", "\n", sep=""))
 	}else{
 		##----------------------------------------##
 		## If Hessian is negative definite, estimate SE and Wald
@@ -517,7 +531,7 @@ DMD.MN.reg <- function(Y,init,  X , weight,
 	list(coefficients=beta, SE=SE, Hessian=H,
 			wald.value=wald, wald.p=wald.p, DoF=p*(d-1),
 			logL=lliter[niter],BIC=BIC, AIC=AIC, iter=niter, 
-			gradient=dl, fitted=fitted, cl=cl)
+			gradients=dl, fitted=fitted, cl=cl)
 			
 }
 
@@ -546,9 +560,9 @@ DMD.DM.reg <- function( Y, init, X, weight,
 	Beta <- exp(X%*%init)
 	lliter <- rep(0,maxiters)
 	lliter[1] <- sum(ddirm(Y,Beta)*weight, na.rm=TRUE)
-	options(warn = -1)
+  options(warn = -1)
 	niter <- 1
-	
+
 	##----------------------------------------##
 	## Begin the main loop
 	while( ((niter <=2)|| ( (ll2-ll1)/(abs(ll1)+1) > epsilon))&(niter<maxiters) ){
@@ -557,12 +571,13 @@ DMD.DM.reg <- function( Y, init, X, weight,
 		tmpvector <- digamma(rowSums(Beta)+m)-digamma(rowSums(Beta))
 		tmpvector[is.nan(tmpvector)] <- 0
 		tmpmatrix <- digamma(Beta + Y) - digamma(Beta)
-		
+
 		##----------------------------------------##
 		## MM update
 		beta_MM <- matrix(0,p,d)
 		weight.fit <- weight*tmpvector
 		wnz <- weight.fit!=0
+
 		weight.fit <- weight.fit[wnz]
 		Y_new <- Beta*tmpmatrix
 		Y_new <- Y_new[wnz,]
@@ -595,17 +610,18 @@ DMD.DM.reg <- function( Y, init, X, weight,
 		tmpvector2 <- trigamma(rowSums(Beta)) - trigamma(m+rowSums(Beta))
 		tmpmatrix2 <- trigamma(Beta) - trigamma(Beta+Y)
 		tmpmatrix2 <- Beta*tmpmatrix - Beta^2*tmpmatrix2
-		Hessian <- sapply(1:N, function(i, A, B) 
-				return( A[i,]%x%B[i,] ),Beta,X ) 
-		Hessian <- Hessian%*%( (tmpvector2*weight)*t(Hessian) )
+		Hessian <- kr(Beta, X)
+		#Hessian <- sapply(1:N, function(i, A, B) return( A[i,]%x%B[i,] ),Beta,X ) 
+		Hessian <- t(Hessian)%*%( (tmpvector2*weight)*Hessian )
 		for(i in 1:d){
 			idx <- (i-1)*p+(1:p)
 			Hessian[idx, idx] <- Hessian[idx, idx] - 
 			t(X) %*% ( weight*((tmpvector*Beta[,i])- tmpmatrix2[,i])*X)
 		}
 		dalpha <- Beta*(tmpmatrix - tmpvector)
-		dl <- rowSums( sapply(1:N, function(i, A, B, w) 
-				return(w[i]* A[i,]%x%B[i,] ) , dalpha, X, weight ) )
+#		dl <- rowSums( sapply(1:N, function(i, A, B, w) 
+#				return(w[i]* A[i,]%x%B[i,] ) , dalpha, X, weight ) )
+		dl <- colSums( kr(dalpha, X, weight) )
 		temp.try <- NULL
 		try(temp.try <- solve(Hessian, dl), silent=TRUE)
 		if(is.null(temp.try)|any(is.nan(temp.try))){
@@ -619,7 +635,7 @@ DMD.DM.reg <- function( Y, init, X, weight,
 				for(step in 1:5){
 					beta_N <- beta - matrix(temp.try/(2^step),p,d)
 					llnew <- sum(ddirm(Y,exp(X%*%beta_N))*weight, na.rm=TRUE)
-					if(llnew <= ll.Newton) break
+					if(is.na(llnew)|llnew <= ll.Newton) break
 					ll.Newton <- llnew
           beta_Newton <- beta_N
 				}
@@ -631,13 +647,15 @@ DMD.DM.reg <- function( Y, init, X, weight,
 		##----------------------------------------##
 		## Choose the update
 		if( is.na(ll.Newton)|ll.MM>ll.Newton ){
-			if(display) print(paste("Iteration ", niter, " MM update", sep=""))
+			if(display) print(paste("Iteration ", niter, 
+                              " MM update, log-likelihood ", ll.MM, sep=""))
 			beta <- beta_MM
 			Beta <- exp(X%*%beta_MM)
 			lliter[niter] <- ll.MM 
 			ll2 <- ll.MM
 		} else { 
-			if(display) print(paste("Iteration ", niter, " Newton's update", sep=""))
+			if(display) print(paste("Iteration ", niter, 
+                              " Newton's update, log-likelihood",ll.Newton, sep=""))
 			beta <- beta_Newton
 			Beta <- exp(X%*%beta_Newton)
 			lliter[niter] <- ll.Newton 
@@ -666,31 +684,33 @@ DMD.DM.reg <- function( Y, init, X, weight,
 	## Check diverge
 	if(any(Beta==Inf, is.nan(Beta), is.nan(tmpvector2), 
 			is.nan(tmpvector), is.nan(tmpmatrix2))){
-		warning("Out of range of trigamma. 
+		warning(paste("Out of range of trigamma. 
 			No standard error or tests results reported.
-			Regression parameters diverge.  Recommend multinomial logit model.")
+			Regression parameters diverge.  Recommend multinomial logit model.", "\n", sep=""))
 	}else{	
 		##----------------------------------------##
 		## Check gradients
 		dalpha <- Beta*(tmpmatrix - tmpvector)
-		dl <- rowSums( sapply(1:N, function(i, Beta, B, w) 
-							return(w[i]* Beta[i,]%x%B[i,] ) , dalpha, X, weight ) )
+#		dl <- rowSums( sapply(1:N, function(i, Beta, B, w) 
+#							return(w[i]* Beta[i,]%x%B[i,] ) , dalpha, X, weight ) )
+		dl <- colSums( kr(dalpha, X, weight) )
 		if(mean(dl^2)> 1e-4){
 			warning(paste("The algorithm doesn't converge within", niter,
 						"iterations. The norm of the gradient is", sum(dl^2), 
-						". Please interpret hessian matrix and MLE with caution.", 
+						". Please interpret hessian matrix and MLE with caution.", "\n",
 						sep=" ")) 
 		}
 		##-----------------------------------##
 		## Check whether H is negative definite,
-		H <-sapply(1:N, function(i, a, b) return(a[i, ]%x%b[i, ]),Beta, X)
-		H <- H%*%(t(H)*(tmpvector2))	
+#		H <- sapply(1:N, function(i, a, b) return(a[i, ]%x%b[i, ]),Beta, X)
+		H <- kr(Beta, X)
+		H <- t(H)%*%(H*(tmpvector2))	
 		for(i in 1:d){
 			id <- (i-1)*p + c(1:p)
 			H[id, id] <- H[id, id]+t(X)%*%((-tmpvector*Beta[,i]+tmpmatrix2[,i])*X)
 		}
 		eig <- eigen(H)$values
-		if(any(eig>0)){
+		if(any(is.complex(eig)) || any(eig>0)){
 			warning("The estimate is a saddle point.")
 		}else if(any(eig==0)){
 			warning("The hessian matrix is almost singular.")
@@ -719,7 +739,7 @@ DMD.DM.reg <- function( Y, init, X, weight,
 	list(coefficients=beta, SE=SE, Hessian=H, 
 			wald.value=wald, wald.p=wald.p, DoF=p*d,
 			logL=ll2, BIC=BIC, AIC=AIC, iter=niter, 
-			gradient=dl, fitted=fitted, logLiter=lliter)
+			gradients=dl, fitted=fitted, logLiter=lliter)
 }
 
 ##============================================================##
@@ -728,7 +748,7 @@ DMD.DM.reg <- function( Y, init, X, weight,
 
 DMD.GDM.reg <- function(Y,init,X,weight,epsilon,maxiters, display, 
 		parallel, cores, cl, sys){
-	
+  
 	##----------------------------------------##
 	## Keep some original values
 	fitted <- matrix(NA, nrow(Y), ncol(Y))
@@ -744,7 +764,18 @@ DMD.GDM.reg <- function(Y,init,X,weight,epsilon,maxiters, display,
 	p <- ncol(X)
 	m <- rowSums(Y)
 	N <- nrow(Y)
-		
+
+  if(is.null(init)){
+    init <- matrix(1, p, 2*(d-1))
+    options(warn=-1)
+    den <-Ys[, which.max(colSums(Y))]
+    den[den==0] <- max(den)
+    fit <- glm.fit(X, Y[, which.max(colSums(Y))]/den,  family=binomial(link = "logit"))
+    init[, 1:(d-1)] <- fit$coefficients
+    init[, d:ncol(init)] <- -init[, 1:(d-1)]
+    options(warn=ow)
+  }
+
 	alpha <- beta <- alpha_se <- beta_se <- matrix(0, p, (d-1))
 	gradients <- matrix(0, 2*p, (d-1))
 	niter <- rep(0, (d-1))
@@ -796,7 +827,7 @@ DMD.GDM.reg <- function(Y,init,X,weight,epsilon,maxiters, display,
 	options(warn=ow)
 	##----------------------------------------##
 	## End of the main loop
-	
+
 	ll2 <-sum(weight*dgdirm(Y, exp(X%*%alpha), exp(X%*%beta)), na.rm=TRUE)
 		
 	##----------------------------------------##
@@ -811,8 +842,9 @@ DMD.GDM.reg <- function(Y,init,X,weight,epsilon,maxiters, display,
 	
 	##----------------------------------------##
 	## Check the gradients
+
 	if(mean(gradients^2) > 1e-4){
-		warning(paste("The algorithm doesn't converge within", niter,
+		warning(paste("The algorithm doesn't converge within", sum(niter),
 			"iterations. The norm of the gradient is ", sum(gradients^2), 
 			" Please interpret hessian matrix and MLE with caution.", sep=" ") )
 	}
@@ -830,10 +862,11 @@ DMD.GDM.reg <- function(Y,init,X,weight,epsilon,maxiters, display,
 			B2^2*(-trigamma(B2+Ys[,-1])+trigamma(B2))
 	d2 <- B2*(digamma(B1+B2+Ys[,-d])-digamma(B1+B2))-
 			B2^2*(-trigamma(B1+B2+Ys[,-d])+trigamma(B1+B2))
+
 	if(any(is.nan(a1), is.nan(a2), is.nan(b), is.nan(d1), is.nan(d2))){
-		warning("Out of range of trigamma. 
+		warning(paste("Out of range of trigamma. 
 			No standard error or tests results reported.
-			Regression parameters diverge. Recommend multinomial logit model.")
+			Regression parameters diverge. Recommend multinomial logit model.", "\n", sep=""))
 		SE <- matrix(NA, p, 2*(d-1))
 		wald <- rep(NA, p)
 		wald.p <- rep(NA, p)
@@ -857,12 +890,12 @@ DMD.GDM.reg <- function(Y,init,X,weight,epsilon,maxiters, display,
 		H <- rbind(cbind(Ha, Hb), cbind(Hb, Hd))
 		eig <- eigen(H)$values
 	
-		if( any(eig>0)){
-			warning("The estimate is a saddle point.
-			No standard error estimate or test results reported.")		
+		if(any(is.complex(eig)) || any(eig>0)){
+			warning(paste("The estimate is a saddle point.
+			No standard error estimate or test results reported.", sep=""))		
 		}else if(any(eig==0)){
-			warning("The hessian matrix is almost singular.
-			No standard error estimate or test results reported.")
+			warning(paste("The hessian matrix is almost singular.
+			No standard error estimate or test results reported.", sep=""))
 		}else if(all(eig<0)){
 		##----------------------------------------------##
 		## Calculate the Wald statistic
@@ -895,7 +928,7 @@ DMD.GDM.reg <- function(Y,init,X,weight,epsilon,maxiters, display,
 	list(coefficients=cbind(alpha,beta), SE=SE, Hessian=H, 
 			wald.value=wald, wald.p = wald.p, logL=ll2, 
 			BIC=BIC, AIC=AIC, iter=sum(niter), DoF=2*p*(d-1),
-			gradient=gradients, fitted=fitted)
+			gradients=gradients, fitted=fitted)
 		
 }
 
@@ -945,9 +978,10 @@ DMD.NegMN.reg <- function(Y, init, X, weight,
 		w_beta <- log(rowsum_Alpha)
 		dlbeta <- colSums((tmpBeta - w_beta)*Beta*X)
 		hbeta_w <- (trigamma(Beta+m)-trigamma(Beta)+tmpBeta-w_beta)*Beta
-		hbeta <- sapply(1:N, function(i, A, B, w) 
-				return(w[i]*A[i,]%x%B[i,]), X, X, hbeta_w)
-		hbeta <- matrix(rowSums(hbeta), p, p)
+#		hbeta <- sapply(1:N, function(i, A, B, w) 
+#				return(w[i]*A[i,]%x%B[i,]), X, X, hbeta_w)
+		hbeta <- kr(X, X, hbeta_w)
+		hbeta <- matrix(colSums(hbeta), p, p)
 		if( all(eigen(hbeta)$value<0) ){
 			beta_MM <- beta - solve(hbeta, dlbeta)
 			Beta_MM <- c(exp(X%*%beta_MM))
@@ -995,13 +1029,15 @@ DMD.NegMN.reg <- function(Y, init, X, weight,
 		deta <- matrix(0, N, (d+1))
 		deta[, 1:d] <- Y - Alpha*Beta - Prob[, 1:d]*(m-Beta*(rowsum_Alpha-1) )
 		deta[, (d+1)] <- Beta*(digamma(Beta+m)-digamma(Beta)-log(rowsum_Alpha))
-		score <- rowSums(sapply(1:N, function(i, A, B, weight) 
-						return(weight[i]*A[i,]%x%B[i,]), deta, X, weight))
+#		score <- rowSums(sapply(1:N, function(i, A, B, weight) 
+#						return(weight[i]*A[i,]%x%B[i,]), deta, X, weight))
+		score <- colSums( kr(deta, X, weight) )
 		hessian <- matrix(0, p*(1+d), p*(1+d))
-		upleft <- sapply(1:N, function(i, A, B) return(A[i,]%x%B[i,]),
-				cbind(Prob[, 1:d],-Beta/(Beta+m)) , X)
-		hessian <- t(t(upleft)*(weight*(Beta+m)))%*%t(upleft)
-		for(j in 1:d){
+#		upleft <- sapply(1:N, function(i, A, B) return(A[i,]%x%B[i,]),
+#				cbind(Prob[, 1:d],-Beta/(Beta+m)) , X)
+		upleft <- kr(cbind(Prob[,1:d], -Beta/(Beta+m)),X)
+		hessian <- t(upleft*(weight*(Beta+m)))%*%upleft
+    for(j in 1:d){
 			idx <- (j-1)*p + (1:p)
 			hessian[idx, idx] <- hessian[idx, idx]-
 								t(X)%*%(X*(weight*(Beta+m)*Prob[,j]))
@@ -1029,7 +1065,7 @@ DMD.NegMN.reg <- function(Y, init, X, weight,
 					Alpha_N <- B[, 1:d] 
 					Beta_N <- B[, (d+1)]
 					llnew <- sum(weight*dneg(Y, Alpha_N, Beta_N),na.rm=T)
-					if(llnew <= ll.Newton) break
+					if(is.na(llnew)|llnew <= ll.Newton) break
 					step <- step+1
 					ll.Newton <- llnew
           B_Newton <- B_N
@@ -1041,12 +1077,12 @@ DMD.NegMN.reg <- function(Y, init, X, weight,
 		##----------------------------------------##
 		## Choose update
 		if( is.na(ll.Newton)|ll.MM>ll.Newton ){
-			if(display) print(paste("Iteration ", niter, " MM update", sep=""))
+			if(display) print(paste("Iteration ", niter, " MM update", "\n", sep=""))
 			alpha <- alpha_MM
 			beta <- beta_MM
 			ll2 <- ll.MM
 		}else{ 
-			if(display) print(paste("Iteration ", niter, " Newton's update", sep=""))
+			if(display) print(paste("Iteration ", niter, " Newton's update", "\n", sep=""))
 			alpha <- B_Newton[,1:d]
 			beta <- B_Newton[, (d+1)]
 			ll2 <- ll.Newton 
@@ -1076,21 +1112,23 @@ DMD.NegMN.reg <- function(Y, init, X, weight,
 	##----------------------------------------##
 	## Check diverge
 	if(any(A==Inf, is.nan(A))){
-		warning("Out of range of trigamma.  No SE or tests results reported.
-				Regression parameters diverge.Recommend multinomial logit model")
+		warning(paste("Out of range of trigamma.  No SE or tests results reported.
+				Regression parameters diverge.Recommend multinomial logit model","\n", sep=""))
 	}else{
 		##----------------------------------------##
 		## Calculate dl
 		deta <- matrix(0, N, (d+1))
 		deta[, 1:d] <- Y - Alpha*Beta - Prob[, 1:d]*(m-Beta*(rowsum_Alpha-1) )
 		deta[, (d+1)] <- Beta*(digamma(Beta+m)-digamma(Beta)+log(Prob[, d+1]))
-		score <- rowSums(sapply(1:N, function(i, A, B,weight) 
-						return(weight[i]*A[i,]%x%B[i,]),deta, X, weight))
+#		score <- rowSums(sapply(1:N, function(i, A, B,weight) 
+#						return(weight[i]*A[i,]%x%B[i,]),deta, X, weight))
+		score <- colSums(kr(deta, X, weight))
 		##----------------------------------------##
 		## Calculate H
-		H <- sapply(1:N, function(i, a, x) return(a[i,]%x%x[i,]), 
-				cbind(Prob[, 1:d],-Beta/tmpv2), X)
-		H <- H%*%(weight*tmpv2*t(H))	
+#		H <- sapply(1:N, function(i, a, x) return(a[i,]%x%x[i,]), 
+#				cbind(Prob[, 1:d],-Beta/tmpv2), X)
+		H <- kr(cbind(Prob[, 1:d],-Beta/tmpv2), X)
+		H <- t(H)%*%(weight*tmpv2*H)	
 		for(i in 1:d){
 			id <- (i-1)*p + c(1:p)
 			H[id, id] <- H[id, id]-t(X)%*%(weight*tmpv2*Prob[, i]*X)
@@ -1106,16 +1144,17 @@ DMD.NegMN.reg <- function(Y, init, X, weight,
 		if(mean(score^2)>1e-4){
 			warning(paste("The algorithm doesn't converge within", niter,
 							"iterations. The norm of the gradient is ", sum(score^2), 
-							" Please interpret hessian matrix and MLE with caution.", 
+							" Please interpret hessian matrix and MLE with caution.", "\n",
 							sep=" ") )
 		}
+
 		##-----------------------------------##
 		## Check whether H is negative definite,
 		eig <- eigen(H)$values
-		if(any(eig>0)){
-			warning("The estimate is a saddle point.")
+		if(any(is.complex(eig)) || any(eig>0)){
+			warning(paste("The estimate is a saddle point.", "\n", sep=""))
 		}else if(any(eig==0)){
-			warning("The hessian matrix is almost singular.")
+			warning(paste("The hessian matrix is almost singular.","\n", sep=""))
 		}else if(all(eig<0)){
 			##--------------------------------------##
 			## Calculate SE and wald
@@ -1137,7 +1176,7 @@ DMD.NegMN.reg <- function(Y, init, X, weight,
 	
 	list(coefficients=cbind(alpha, beta), SE=SE, Hessian=H, 
 		BIC=BIC, AIC=AIC, wald.value=wald, wald.p=wald.p,
-		logL=lliter[niter], iter=(niter), gradient=score, fitted=fitted)
+		logL=lliter[niter], iter=(niter), gradients=score, fitted=fitted)
 
 }
 
@@ -1174,7 +1213,6 @@ DMD.NegMN.Alpha.reg <- function(Y, init, X, weight,
 	betaiter[1] <- beta
 	niter <- 1
 	options(warn=-1)
-	
 	##----------------------------------------##
 	## Begin the main loop
 	while( ((niter <=2)|| ((ll2-ll1)/(abs(ll1)+1) > epsilon))&(niter<maxiters) ){
@@ -1196,7 +1234,9 @@ DMD.NegMN.Alpha.reg <- function(Y, init, X, weight,
 			if(!is.na(temp_MM) && !is.nan(temp_MM) && temp_MM > 0 ) beta_MM <- temp_MM
 		}	
 		alpha_MM <- matrix(0,p,d)
-		w_alpha <-(beta_MM+m)/rowsum_Alpha	
+		w_alpha <-(beta_MM+m)/rowsum_Alpha
+    if(sum(w_alpha^2)==0) break
+    else    w_alpha[w_alpha==0] <- 1
     if(any(is.na(w_alpha))) 
       stop("Error: The algorithm diverged. Please try other model.")
 		if(!parallel){
@@ -1226,14 +1266,16 @@ DMD.NegMN.Alpha.reg <- function(Y, init, X, weight,
 		##----------------------------------------##
 		## Newton Update
 		deta <- Y - (beta+m)*Prob[,1:d]
-		score <- rowSums(sapply(1:N, function(i, A, B, weight) 
-						return(weight[i]*A[i,]%x%B[i,]), deta, X, weight))
+#		score <- rowSums(sapply(1:N, function(i, A, B, weight) 
+#						return(weight[i]*A[i,]%x%B[i,]), deta, X, weight))
+		score <- colSums(kr(deta, X, weight))
 		score <- c(score, dlbeta)
 		
-		upleft <- sapply(1:N, function(i, A,B) return(A[i,]%x%B[i,]),
-			Prob[,1:d], X)
-		upright <- -rowSums(upleft)
-		upleft <- upleft%*%(t(upleft)*(weight*(beta+m)))
+#		upleft <- sapply(1:N, function(i, A,B) return(A[i,]%x%B[i,]),
+#			Prob[,1:d], X)
+		upleft <- kr(Prob[,1:d], X)
+		upright <- -colSums(upleft)
+		upleft <- t(upleft)%*%(upleft*(weight*(beta+m)))
 		
 		for(j in 1:d){
 			idx <- (j-1)*p+1:p
@@ -1261,7 +1303,7 @@ DMD.NegMN.Alpha.reg <- function(Y, init, X, weight,
 					Alpha_N <-  exp(X%*%B_N)
 					beta_N <- beta-temp[p*d+1]
 					llnew <- sum(weight*dneg(Y, Alpha_N, rep(beta_N,N)),na.rm=T)
-					if( ll.Newton >= llnew ) break
+					if( is.na(llnew)|ll.Newton >= llnew ) break
           ll.Newton <- llnew
           B_Newton <- B_N
           beta_Newton <- beta_N
@@ -1290,7 +1332,7 @@ DMD.NegMN.Alpha.reg <- function(Y, init, X, weight,
 	##----------------------------------------##
 	## End of the main loop
 	options(warn=ow)
-		
+
 	##----------------------------------------##
 	## Compute output statistics
 	BIC <- -2*ll2 + log(N)*(p*d+1)
@@ -1300,7 +1342,7 @@ DMD.NegMN.Alpha.reg <- function(Y, init, X, weight,
 	Prob <- cbind(Alpha, 1)
 	Prob <- Prob/(rowSums(Prob))
 	tmpv1 <- digamma(beta+m) - digamma(beta)
-	SE <- matrix(NA, p,d+1)
+	SE <- matrix(NA, p,d)
 	SE_beta <- NA
 	wald <- rep(NA, p)
 	wald.p <- rep(NA, p)
@@ -1309,22 +1351,24 @@ DMD.NegMN.Alpha.reg <- function(Y, init, X, weight,
 	##----------------------------------------##
 	## Check diverge
 	if(any(A==Inf, is.nan(A), is.nan(beta), is.nan(beta))){
-		warning("Out of range of trigamma.  No SE or tests results reported.
-				Regression parameters diverge.Recommend multinomial logit model")
+		warning(paste("Out of range of trigamma.  No SE or tests results reported.
+				Regression parameters diverge.Recommend multinomial logit model","\n", sep=""))
 	}else{
 		##----------------------------------------##
 		## Calculate dl
 		dlbeta <- sum(tmpv1-log(rowSums(Alpha)+1))
 		deta <- Y - (beta+m)*Prob[,1:d]
-		score <- rowSums(sapply(1:N, function(i, A, B, weight) 
-						return(weight[i]*A[i,]%x%B[i,]), deta, X, weight))
+#		score <- rowSums(sapply(1:N, function(i, A, B, weight) 
+#						return(weight[i]*A[i,]%x%B[i,]), deta, X, weight))
+		score <- colSums( kr(deta, X, weight))
 		score <- c(score, dlbeta)
 		##----------------------------------------##
 		## Calculate H
-		upleft <- sapply(1:N, function(i,A,B) return(A[i,]%x%B[i,]),
-					Prob[,1:d], X)
-		upright <- -rowSums(upleft)
-		upleft <- t(t(upleft)*(weight*(beta+m)))%*%t(upleft)
+#		upleft <- sapply(1:N, function(i,A,B) return(A[i,]%x%B[i,]),
+#					Prob[,1:d], X)
+    upleft <- kr(Prob[,1:d], X)
+		upright <- -colSums(kr(Prob[,1:d], X))
+		upleft <- t(upleft*(weight*(beta+m)))%*%upleft
 		for(j in 1:d){
 			idx <- (j-1)*p+1:p
 			upleft[idx, idx] <- upleft[idx, idx] - 
@@ -1337,16 +1381,16 @@ DMD.NegMN.Alpha.reg <- function(Y, init, X, weight,
 		if(mean(score^2)>1e-4){
 			warning(paste("The algorithm doesn't converge within", niter,
 				"iterations. The norm of the gradient is ", sum(score^2), 
-				" Please interpret hessian matrix and MLE with caution.", 
+				" Please interpret hessian matrix and MLE with caution.", "\n",
 				sep=" ") )
 		}
 		##-----------------------------------##
-		## Check whether H is negative definite,		
+		## Check whether H is negative definite,
 		eig <- eigen(H)$values
-		if(any(eig>0)){
-			warning("The estimate is a saddle point.")
+		if(any(is.complex(eig)) || any(eig>0)){
+			warning(paste("The estimate is a saddle point.", "\n", sep=""))
 		}else if(any(eig==0)){
-			warning("The hessian matrix is almost singular.")
+			warning(paste("The hessian matrix is almost singular.", "\n", sep=""))
 		}else if(all(eig<0)){
 			##--------------------------------------##
 			## Calculate SE and wald
@@ -1368,7 +1412,7 @@ DMD.NegMN.Alpha.reg <- function(Y, init, X, weight,
 	list(coefficients=list(alpha=alpha, phi=beta), 
 		SE=list(SE.alpha=SE, SE.beta=SE_beta), Hessian=H, 
 		BIC=BIC, AIC=AIC, wald.value=wald, wald.p=wald.p,
-		logL=lliter[niter], iter=(niter), gradient=score, fitted=fitted)
+		logL=lliter[niter], iter=(niter), gradients=score, fitted=fitted)
 }
 
 ##============================================================##

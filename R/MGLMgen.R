@@ -105,15 +105,16 @@ if(!is.vector(size)){
 ##----------------------------------------##
 ## Generate data
 
-G <- sapply(as.matrix(alpha), "rgamma", n=1)
-G <- matrix(G, n, )
+G <- sapply(c(alpha), "rgamma", n=1)
+G <- matrix(G, nrow=n)
 prob <- G/rowSums(G)
 ridx <- rowSums(G)==0
 if(any(ridx)){
 	if(sum(ridx)>1){
-	prob[ridx,]<- alpha[ridx, ]/rowSums(alpha[ridx, ])
+    prob[ridx, ] <- t( apply((alpha[ridx, ]/rowSums(alpha[ridx, ])),1,
+            function(x) return(rmultinom(n=1, size=1, prob=x)) ))
 		}else{
-	prob[ridx,]<- alpha[ridx, ]/sum(alpha[ridx, ])
+	  prob[ridx,]<- rmultinom(n=1, size=1, alpha[ridx, ]/sum(alpha[ridx, ]))
 		}
 	}	
 rdm <- t( sapply( 1:n, function(i, size, prob) 
