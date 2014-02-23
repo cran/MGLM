@@ -131,7 +131,11 @@ DMD.DM.fit <- function( data, init, weight,
 	if(missing(init)){
 		rho <- sum((colSums(weight*(data/m)^2))/
 			(colSums(weight*data/m)))
-		init <- as.vector((1/N)*( colSums(weight*data/m) )*(d-rho)/(rho-1))
+    if(rho==d){
+      init <- rep(1e-6, d)
+    }else{
+  		init <- as.vector((1/N)*( colSums(weight*data/m) )*(d-rho)/(rho-1))
+    }
 	}
 	
 	##----------------------------------------##
@@ -175,7 +179,7 @@ DMD.DM.fit <- function( data, init, weight,
 		## Choose the update 
 		if( any(is.na(alpha_Newton)) | any(alpha_Newton<0) ){
 			if(is.nan(alpha_MM) || is.na(alpha_MM) || any(alpha_MM==Inf)){
-				stop("GDM model is not suitable for this dataset. 
+				stop("DM model is not suitable for this dataset. 
 				Please use anoter model or privide initial value.")
 				}else{
 					alpha_hat <- alpha_MM 
@@ -256,10 +260,11 @@ DMD.GDM.fit <- function(data,init,weight,
 	if(missing(init)){
 		y <- as.matrix( Y[apply(Y,1,min)!=0,1:(d-1)] )
 		y2 <- as.matrix( Y[apply(Y,1,min)!=0,2:d] )
-		x <- as.matrix( data[apply(Y,1,min)!=0,1:(d-1)] )
+		x <- as.matrix( Y[apply(Y,1,min)!=0,1:(d-1)] )
 		rho <- (colSums((x/y)^2)/colSums(x/y)) +colSums((y2/y)^2)/colSums((y2/y))
-		init_alpha <- rep( min((1/N)*( colSums(x/y) )*(2-rho)/(rho-1)), (d-1))
-		init_beta <-init_alpha
+    init_alpha <- rep( min((1/N)*( colSums(x/y) )*(2-rho)/(rho-1)), (d-1))
+    init_alpha[rho==2] <- 1e-6
+	  init_beta <-init_alpha
 	}else{
 		init_alpha <- init[, 1:(d-1)]
 		init_beta <- init[, d:(2*d-2)]
@@ -277,10 +282,16 @@ DMD.GDM.fit <- function(data,init,weight,
 	## Distribution fitting
 	options(warn=-1)
 	for( i in 1:(d-1) ){
+		fit <- NULL
 		data.fit <- cbind(data[,i],Y2[,i])
 		init.fit <- c(init_alpha[i],init_beta[i])
-		fit <- DMD.DM.fit(data=data.fit, weight=weight,
-				init=init.fit, epsilon=epsilon, maxiters=maxiters, display)
+		try( fit <- DMD.DM.fit(data=data.fit, weight=weight,
+				init=init.fit, epsilon=epsilon, maxiters=maxiters, display),
+				silent = TRUE )
+		if(is.null(fit)){
+			stop("GDM model is not suitable for this dataset. 
+				Please use anoter model or privide initial value.")
+		}
 		alpha_hat[i] <- fit$estimate[1]
 		beta_hat[i] <- fit$estimate[2]
 		gradients[,i] <- fit$gradient

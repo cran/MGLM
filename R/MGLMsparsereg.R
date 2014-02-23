@@ -290,8 +290,9 @@ MGLM.loss <- function(Y, X, beta, dist, weight, regBeta=FALSE, Beta){
 		loss <- -sum(weight*dmn(Y, P))
 		kr1 <- Y[,1:(d-1)]-P[, 1:(d-1)]*m
     if(d>2){
-		  lossD1 <- -rowSums(sapply(1:nrow(Y), function(i, A, B, w) 
-							return(w[i]*A[i,]%x%B[i,]), kr1, X, weight))
+#		  lossD1 <- -rowSums(sapply(1:nrow(Y), function(i, A, B, w) 
+#							return(w[i]*A[i,]%x%B[i,]), kr1, X, weight))
+      lossD1 <- -colSums(kr(kr1, X, weight))
     }else if(d==2){
       lossD1 <- -colSums( kr1*weight*X)
     }
@@ -302,8 +303,9 @@ MGLM.loss <- function(Y, X, beta, dist, weight, regBeta=FALSE, Beta){
 		tmpvector <- digamma(rowSums(alpha) + m) - digamma(rowSums(alpha))
 		tmpmatrix <- digamma(alpha+ Y) - digamma(alpha)
 		dalpha <- tmpmatrix - tmpvector
-		lossD1 <- - rowSums(sapply(1:nrow(Y), function(i, A, B,w) 
-							return(w[i]*A[i,]%x%B[i,]), alpha*dalpha, X, weight) )
+#		lossD1 <- - rowSums(sapply(1:nrow(Y), function(i, A, B,w) 
+#							return(w[i]*A[i,]%x%B[i,]), alpha*dalpha, X, weight) )
+    lossD1 <- - colSums(kr(alpha*dalpha, X, weight))
 		lossD1 <- matrix(lossD1, p, d)
 	}else if(dist=="GDM"){
 		Ys <- t( apply(apply( apply(Y,1,rev),2,cumsum),2,rev) )
@@ -314,8 +316,9 @@ MGLM.loss <- function(Y, X, beta, dist, weight, regBeta=FALSE, Beta){
 		dalpha1 <- digamma(A+ Y[,-d])-digamma(A)-digamma(A+B+Ys[,-d])+digamma(A+B)
 		dalpha2 <- digamma(B+Ys[,-1])-digamma(B)-digamma(A+B+Ys[,-d])+digamma(A+B)
 		dalpha <- cbind(dalpha1, dalpha2)
-		lossD1 <- -rowSums(sapply(1:nrow(Y), function(i, A, B,w) 
-							return(w[i]*A[i,]%x%B[i,]), alpha*dalpha, X, weight) )
+#		lossD1 <- -rowSums(sapply(1:nrow(Y), function(i, A, B,w) 
+#							return(w[i]*A[i,]%x%B[i,]), alpha*dalpha, X, weight) )
+    lossD1 <- -colSums(kr(alpha*dalpha, X, weight))
 		lossD1 <- matrix(lossD1, p, 2*(d-1))	
 	}else if(dist=="NegMN"){
 		if(regBeta){
@@ -329,8 +332,9 @@ MGLM.loss <- function(Y, X, beta, dist, weight, regBeta=FALSE, Beta){
 			deta <- matrix(0, nrow(Y), d+1)
 			deta[, 1:d] <- Y-alpha[,1:d]*Beta-P[,1:d]*(m-(alpha_rowsums-1)*Beta)
 			deta[, (d+1)] <- Beta*(digamma(Beta+m)-digamma(Beta)+log(P[, (d+1)]))
-			lossD1 <- -rowSums(sapply(1:nrow(Y), function(i, A, B,w) 
-								return(w[i]*A[i,]%x%B[i,]), deta, X, weight) )
+#			lossD1 <- -rowSums(sapply(1:nrow(Y), function(i, A, B,w) 
+#								return(w[i]*A[i,]%x%B[i,]), deta, X, weight) )
+      lossD1 <- -colSums(kr(deta, X, weight))
 			lossD1 <- matrix(lossD1, p, (d+1))
 		}else{
 			P <- matrix(NA, N, (d+1))
@@ -340,8 +344,9 @@ MGLM.loss <- function(Y, X, beta, dist, weight, regBeta=FALSE, Beta){
 			P[, 1:d] <- alpha[, 1:d]*P[, (d+1)]
 			loss <- - sum(weight* dneg(Y, alpha, rep(Beta, N)) )
 			deta <- Y - (Beta + m)*P[,1:d]
-			lossD1 <-  -rowSums(sapply(1:N, function(i, A, B,w) 
-								return(w[i]*A[i,]%x%B[i,]), deta, X, weight) )
+#			lossD1 <-  -rowSums(sapply(1:N, function(i, A, B,w) 
+#								return(w[i]*A[i,]%x%B[i,]), deta, X, weight) )
+      lossD1 <- - colSums(kr(deta, X, weight))
 			lossD1 <- matrix(lossD1, p, d)
 		}
 	}
