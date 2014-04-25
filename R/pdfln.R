@@ -59,8 +59,7 @@ ddirm <- function(Y, alpha){
 
 	if(is.vector(alpha)&&length(alpha)>1){
 
-		if(is.vector(Y)&&length(Y)>1){
-		
+		if(is.vector(Y)&&length(Y)>1){		
 			if(length(Y)!=length(alpha)){
 				stop("size of Y and alpha doesn't match.")
 			}else{	Y <- matrix(Y, 1, length(Y)) }
@@ -68,22 +67,28 @@ ddirm <- function(Y, alpha){
 		}else if(is.vector(Y)&&length(Y)<=1){
 			stop("Y can not be a scalar")
 		}
-		
-	alpha <- t( matrix(alpha, length(alpha) , dim(Y)[1]))
-
+	  alpha <- t( matrix(alpha, length(alpha) , dim(Y)[1]))
 	}
-	
 	if(any(dim(alpha)!=dim(Y))){
 		stop("dimensions of alpha and Y do not match")
 	}
+  
+  canc <- rowSums(alpha)> 1e8
+  
 	##----------------------------------------##
 	## Calculate
 	alpha_rowsums <- rowSums(alpha)
 	m <- rowSums(Y)
-	logl <- lgamma(m+1) - rowSums(lgamma(Y+1)) +
-			rowSums(lgamma(Y+alpha)-lgamma(alpha))+
-			lgamma( alpha_rowsums)-lgamma(alpha_rowsums+m)
+  
+	logl <-  lgamma(m+1) + rowSums(lgamma(Y+alpha)) + lgamma( alpha_rowsums) - 
+	  rowSums(lgamma(Y+1))-rowSums(lgamma(alpha))-lgamma(alpha_rowsums+m)
 	
+#   if(sum(canc)>0){
+#     logMN <- rowSums(Y*log(alpha)) - rowSums(Y*log(alpha_rowsums)) + 
+#       lgamma(m+1) - rowSums(lgamma(Y+1))
+#     logl[canc] <- logMN[canc]
+#   }
+  
 	return(logl)	
 }
 

@@ -8,8 +8,9 @@ Choose the tuning parameter value in sparse regression.
 Finds the tuning parameter value that yields the smallest BIC.
 }
 \usage{
-MGLMtune(formula, data, dist, penalty, lambdas, ngridpt, display=FALSE, init,
-  weight, penidx, ridgedelta, maxiters=150, epsilon=1e-5, regBeta=FALSE, overdisp)
+MGLMtune(formula, data, dist, penalty, lambdas, ngridpt, warm.start=TRUE, 
+  keep.path=FALSE, display=FALSE, init, weight, penidx, ridgedelta, 
+  maxiters=150, epsilon=1e-5, regBeta=FALSE, overdisp)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -41,6 +42,18 @@ MGLMtune(formula, data, dist, penalty, lambdas, ngridpt, display=FALSE, init,
 	will be ignored.  Otherwise, the maximum \eqn{\lambda} is
 	determined from the data.  The smallest \eqn{\lambda}
 	is set to \eqn{1/n}, where \eqn{n} is the sample size.
+}
+  \item{warm.start}{
+	an optional logical variable to specify whether to give warm start at each
+	tuning grid point.  If \code{warm.start=TRUE}, the fitted sparse regression 
+	coefficients will be used as the initial value when fitting the sparse
+	regression with the next tuning grid. 
+}
+  \item{keep.path}{
+  an optional logical variable controling whether to output the whole solution path. 
+  The default is \code{keep.path=FALSE}. If \code{keep.path=TRUE}, the sparse regression
+  result at each grid point will be kept, and saved in the output object 
+  \code{$select.list}.
 }
   \item{display}{
 	an optional logical variable to specify whether to show each tuning 
@@ -118,6 +131,7 @@ m <- rbinom(n, 80, 0.5)
 Y <- rgdirm(m, Alpha, Beta)
 
 select <- MGLMtune(Y~0+X, dist="GDM", penalty="group", ngridpt=30, display=TRUE)
+plot(select)
 }
 }
 \keyword{Sparse regression}

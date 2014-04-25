@@ -2,8 +2,23 @@
 # 
 # Author: Zhang
 ###############################################################################
+##============================================================##
+## Set class
+##============================================================##
+setClass("MGLMtune", representation(
+        call = "function",
+        select = "MGLMsparsereg", 
+        path = "data.frame",
+        select.list="list"
+))
+
+
+##============================================================##
+## Tuning function
+##============================================================##
 
 MGLMtune <- function(formula, data, dist, penalty, lambdas, ngridpt, 
+    warm.start=TRUE, keep.path=FALSE, 
 		display=FALSE, init, weight, penidx, ridgedelta, maxiters=150, 
 		epsilon=1e-5, regBeta=FALSE, overdisp){
 
@@ -67,7 +82,7 @@ MGLMtune <- function(formula, data, dist, penalty, lambdas, ngridpt,
 	if(missing(ridgedelta)) ridgedelta <- 1/(p*d)
 	##----------------------------------------##
 	## Pennalty values
-#  browser()
+  fit.max <- NULL
 	if(missing(lambdas)){
 		if(missing(ngridpt)) ngridpt <- 10
 		##----------------------------------------##
@@ -78,8 +93,34 @@ MGLMtune <- function(formula, data, dist, penalty, lambdas, ngridpt,
 				epsilon=epsilon, regBeta=regBeta, overdisp=overdisp))
     
 		maxlambda <- fit.max$maxlambda
-		lambdas <- exp(seq(from=log(maxlambda), 
-						to=log(maxlambda/N), length.out=ngridpt))
+		lambdas <- exp(seq(from=log(maxlambda/N), 
+						to=log(maxlambda), length.out=15))
+		##----------------------------------------##
+		## Find minimum lambda
+#     if(penalty=="group_row"){
+# 		for(j in 1:15){
+# 		  if(j==1) B0 <- fit.max$coefficients else B0 <- B_hat
+# 		  temp <- eval(call("MGLMsparsereg.fit", Y=Y, X=X, dist=dist, 
+# 		        lambda=lambdas[j], penalty=penalty, weight=weight, penidx=penidx, 
+# 		        init=init, ridgedelta=ridgedelta, maxiters=maxiters, 
+# 		        epsilon=epsilon, regBeta=regBeta, overdisp=overdisp))
+# 		  B_hat <- temp$coefficients
+# 		  nz <- sum(rowSums(B_hat^2)>0)
+# 
+# 		  if(nz==p){
+# 		    next
+# 		  }else{
+# 		    if(j>1)
+# 		      minlambda <- lambdas[j-1]
+# 		    else
+# 		      minlambda <- lambdas[1]/10
+# 		    break
+# 		  }
+# 		}
+#     }else
+        minlambda <- maxlambda/N
+
+		lambdas <- exp(seq(from=log(maxlambda), to=log(minlambda), length.out=ngridpt))
 	}else{
 		ngridpt <- length(lambdas)
 	}
@@ -91,8 +132,29 @@ MGLMtune <- function(formula, data, dist, penalty, lambdas, ngridpt,
 	select.list <- list()
 	
 	for(j in 1:ngridpt){
-		if(j ==1 ) B0 <- init else B0 <- B_hat
-		temp <- eval(call("MGLMsparsereg.fit", Y=Y, X=X, dist=dist, 
+	  if(j==1 & !is.null(fit.max)){
+      temp <- fit.max
+      select.list[[j]] <- temp
+      B_hat <- temp$coefficients
+      BICs[j] <- temp$BIC
+      AICs[j] <- temp$AIC
+      logL[j] <- temp$logL
+      Dof[j] <- temp$Dof
+      if(display) 
+        print(paste(j, " lamda=", sprintf("%.2f",lambdas[j]), 
+                    "  BIC=", sprintf("%.2f", BICs[j]), 
+                    " AIC=", sprintf("%.2f", AICs[j]),
+                    " logL=",sprintf("%.2f", logL[j]),
+                    " Dof=", sprintf("%.2f", Dof[j]), sep=""))
+      next 
+	  }
+    
+    if(warm.start){
+		  if(j ==1 ) B0 <- init else B0 <- B_hat
+    }else{
+      B0 <- init
+    }
+    temp <- eval(call("MGLMsparsereg.fit", Y=Y, X=X, dist=dist, 
 			lambda=lambdas[j], penalty=penalty, weight=weight, penidx=penidx, 
 			init=B0, ridgedelta=ridgedelta, maxiters=maxiters, epsilon=epsilon,
 			regBeta=regBeta, overdisp=overdisp))
@@ -103,9 +165,12 @@ MGLMtune <- function(formula, data, dist, penalty, lambdas, ngridpt,
 		logL[j] <- temp$logL
 		Dof[j] <- temp$Dof
 
-			if(display) 
-				print(paste(j, " lamda=", lambdas[j], "  BIC=", BICs[j], 
-					" Dof=", Dof[j],sep=""))
+		if(display) 
+				print(paste(j, " lamda=", sprintf("%.2f",lambdas[j]), 
+                    "  BIC=", sprintf("%.2f", BICs[j]), 
+				" AIC=", sprintf("%.2f", AICs[j]),
+        " logL=",sprintf("%.2f", logL[j]),
+        " Dof=", sprintf("%.2f", Dof[j]), sep=""))
 
 	}
 	chosen.lambda <- lambdas[which.min(BICs)]
@@ -120,6 +185,16 @@ MGLMtune <- function(formula, data, dist, penalty, lambdas, ngridpt,
 			ifelse(penalty=="nuclear", "nuclear", "sweep"))
 	select$lambda <- chosen.lambda
 	class(select) <- "MGLMsparsereg"
-	outDf <- data.frame(Dof=Dof, Lambda=lambdas, BIC=BICs, AIC=AICs, logL=logL)
-	return(list(select=select, path=outDf))
+  
+  outDf <- data.frame(Dof=Dof, Lambda=lambdas, BIC=BICs, AIC=AICs, logL=logL)
+  
+
+  
+  if(keep.path)
+  	out <- list(select=select, path=outDf, select.list=select.list)
+  else
+    out <- list(select=select, path=outDf, select.list=NULL)
+	 
+	class(out) <- "MGLMtune"
+	return(out)
 }

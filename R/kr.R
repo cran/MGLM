@@ -18,6 +18,7 @@ kr <- function(A, B, w, byrow=TRUE){
 		expr <- paste("rbind(", paste(rep("A", colb), collapse=","), ")", sep="")
 		A <- eval(parse(text=expr))
     A <- matrix(c(A), nrow(B), ncol=colab)
+	A <- w*A
     expr2 <- paste("cbind(", paste(rep("B", cola), collapse=","), ")", sep="")
     B <- eval(parse(text=expr2))
   }else{
@@ -30,7 +31,8 @@ kr <- function(A, B, w, byrow=TRUE){
 		rowa <- nrow(A)
 		rowb <- nrow(B)
 		rowab <- rowa*rowb
-		A <- matrix( rep(A,each=rowb),  rowab, )	
+		A <- matrix( rep(A,each=rowb),  rowab, )
+		A <- A*matrix(w, nrow(A), ncol(A), byrow=TRUE)
 		expr <- paste("rbind(", paste(rep("B", rowa), collapse=","), ")", sep="")
 		B <- eval(parse(text=expr))
 	}

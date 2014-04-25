@@ -129,6 +129,7 @@ DMD.DM.fit <- function( data, init, weight,
 	## Give default value to the missing variables
 	if(missing(weight)){ weight <- rep(1,N) }
 	if(missing(init)){
+
 		rho <- sum((colSums(weight*(data/m)^2))/
 			(colSums(weight*data/m)))
     if(rho==d){
@@ -465,6 +466,6 @@ DMD.NegMN.fit <- function( data, init, weight,
 	
 	list(estimate=c(pi_hat, beta_hat), DoF = (d+1),
        gradient=score,	SE=SE, logL=LL2, lliter=LL_iter,
-		BIC=BIC, AIC=AIC, itern=niter,LRT=NULL,
-		LRTpvalue=NULL, fitted=fitted)
+		BIC=BIC, AIC=AIC, itern=niter,LRT=NA,
+		LRTpvalue=NA, fitted=fitted)
 }

@@ -12,15 +12,21 @@ export(MGLMtune)
 export(rdirm)
 export(rgdirm)
 export(rnegmn)
+export(scatter.plot)
+export(corr.plot)
 
-exportMethods(print, predict)
+exportMethods(print,predict, plot)
 
 exportClasses(
     "MGLMfit",
     "MGLMreg",
-    "MGLMsparsereg"
+    "MGLMsparsereg",
+	"MGLMtune"
 )
 
 import(methods)
 import(stats)
 import(parallel)
+import(ggplot2)
+import(reshape2)
+import(plyr)

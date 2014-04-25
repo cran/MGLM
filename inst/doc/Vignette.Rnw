@@ -35,9 +35,51 @@ The analysis of multivariate count data arises in numerous fields including geno
 
 The simulted data we plan to analyze is multivariate count data with $d$ categories.
 
+<<eval=TRUE, echo=FALSE, include=FALSE>>=
+require(ggplot2)
+require(reshape2)
+require(plyr)
+@
 <<eval=TRUE, echo=TRUE>>=
 require(MGLM)
 @
+
+Before getting started with model fitting, we introduce two plotting functions that can easily capture the correlation structure of the response counts. 
+
+<<cache=TRUE>>=
+data(iris)
+Y <-iris[, 1:4]
+@
+
+<<label=scatter1, echo=TRUE, pdf=FALSE, results=hide, include=TRUE>>=
+scatter.plot(Y, facet=TRUE, free=TRUE)
+@
+
+<<label=corr, echo=TRUE, pdf=FALSE, results=hide, include=TRUE>>=
+corr.plot(Y)
+@
+
+\begin{figure}
+\begin{center}
+$$
+\begin{array}{cc}
+\setkeys{Gin}{height=2in,width=2.3in}
+<<label=scatter1,fig=TRUE,echo=FALSE>>=
+<<scatter1>>
+@
+& 
+\setkeys{Gin}{height=2in,width=2.7in}
+<<label=corr,fig=TRUE,echo=FALSE>>=
+<<corr>>
+@
+\end{array}
+$$
+\end{center}
+\caption{Scatter plot and correlation plot of the multivariate counts.}
+\label{fig:scatter}
+\end{figure}
+
+
 
 \section{Distribution fitting}
 
@@ -189,6 +231,11 @@ print(negReg)
 
 Again, the Wald test declares all preditors to be significant. 
 
+The plot of fitted versis true values can be made easily with 
+<<label=fit1, echo=TRUE, pdf=FALSE, results=hide,  include=TRUE>>=
+plot(gdmReg, facet=TRUE, free=TRUE)
+@
+Faceting display is an option. The free arguement controls whether to use shared scale across all facets.
 
 \subsection{Prediction}
 
@@ -213,11 +260,11 @@ The function {\tt MGLMtune} finds the optimal tuning parameter with smallest BIC
 We generate the data from the DM model, with row sparsity, and show how each penalty type works. 
 
 <<cache=TRUE >>=
+set.seed(118)
 n <- 100
 p <- 10
 d <- 5
-m <- runif(n, min=0, max=25) + 25
-set.seed(134)
+m <- rbinom(n, 200, 0.8)
 X <- matrix(rnorm(n*p),n, p)
 alpha <- matrix(0, p, d)
 alpha[c(1,3, 5), ] <- 1
@@ -229,16 +276,14 @@ Y <- rdirm(size=m, alpha=Alpha)
 
 Figure \ref{fig:lasso-solpath} displays the trace of BIC along the solution path and the regularized estimate at optimal tuning parameter value.
 
-<<warning=FALSE, cache=TRUE>>=
+<<warning=FALSE, cache=FALSE>>=
 sweep <- MGLMtune(Y~0+X, dist="DM", penalty="sweep", ngridpt=30)
 print(sweep$select)
 @
 
 
-<<label=sweeppath, echo=FALSE, pdf=FALSE, results=hide,  include=FALSE>>=
-p1 <- plot(x=log(sweep$path$Lambda),y=sweep$path$BIC, type="p",
-           xlab="log(lambda)", ylab="BIC") +
-  lines(x=log(sweep$path$Lambda),y=sweep$path$BIC)
+<<label=sweeppath, echo=TRUE, pdf=FALSE, results=hide,  include=TRUE>>=
+plot(sweep)
 @
 
 
@@ -257,16 +302,14 @@ p1 <- plot(x=log(sweep$path$Lambda),y=sweep$path$BIC, type="p",
 \subsection{Select by rows}
 
 Since the rows of the parameter matrix correspond to predictors, selecting by rows performs variable selection at the predictor level. Figure \ref{fig:group-solpath} displays the trace of BIC along the solution path and the regularized estimate at optimal tuning parameter value.
-<<warning=FALSE, cache=TRUE>>=
+<<warning=FALSE, cache=FALSE>>=
 group <- MGLMtune(Y~0+X, dist="DM", penalty="group", ngridpt=30)
 print(group$select)
 @
 
 
-<<label=grouppath, echo=FALSE,  pdf=FALSE, results=hide, include=FALSE>>=
-p2 <- plot(x=log(group$path$Lambda),y=group$path$BIC, type="p",
-           xlab="log(lambda)", ylab="BIC") +
-  lines(x=log(group$path$Lambda),y=group$path$BIC)
+<<label=grouppath, echo=TRUE,  pdf=FALSE, results=hide, include=TRUE>>=
+plot(group)
 @
 
 \begin{figure}
@@ -285,15 +328,13 @@ p2 <- plot(x=log(group$path$Lambda),y=group$path$BIC, type="p",
 
 Nuclear norm regularization encourages low rank in the regularized estimate. Figure \ref{fig:nuclear-solpath} displays the trace of BIC along the solution path and the regularized estimate at optimal tuning parameter value.  
 
-<<warning=FALSE, cache=TRUE>>=
-nuclear <- MGLMtune(Y~0+X, dist="DM", penalty="nuclear", ngridpt=30)
+<<warning=FALSE, cache=FALSE>>=
+nuclear <- MGLMtune(Y~0+X, dist="DM", penalty="nuclear", ngridpt=30, warm.start=FALSE)
 print(nuclear$select)
 @
 
-<<label=nuclearpath, echo=FALSE, pdf=FALSE, results=hide, include=FALSE>>=
-p3 <- plot(x=log(nuclear$path$Lambda),y=nuclear$path$BIC, type="p",
-           xlab="log(lambda)", ylab="BIC") +
-  lines(x=log(nuclear$path$Lambda),y=nuclear$path$BIC)
+<<label=nuclearpath, echo=TRUE, pdf=FALSE, results=hide, include=TRUE>>=
+plot(nuclear)
 @
 
 

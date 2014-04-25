@@ -44,6 +44,8 @@ Objects can be created by calls of the form \code{new("MGLMreg", ...)}.
   \describe{
     \item{print}{\code{signature(x = "MGLMreg")}: 
 		print out regression results from the class \code{MGLMreg}.}
+    \item{plot}{\code{signature(x = "MGLMreg")}: 
+  	plot regression results from the class \code{MGLMreg}.}
 	 }
 }
 \author{
