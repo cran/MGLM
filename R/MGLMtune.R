@@ -91,10 +91,10 @@ MGLMtune <- function(formula, data, dist, penalty, lambdas, ngridpt,
 				lambda=Inf, penalty=penalty, weight=weight, penidx=penidx, 
 				init=init, ridgedelta=ridgedelta, maxiters=maxiters, 
 				epsilon=epsilon, regBeta=regBeta, overdisp=overdisp))
-    
+
 		maxlambda <- fit.max$maxlambda
-		lambdas <- exp(seq(from=log(maxlambda/N), 
-						to=log(maxlambda), length.out=15))
+# 		lambdas <- exp(seq(from=log(maxlambda/N), 
+# 						to=log(maxlambda), length.out=15))
 		##----------------------------------------##
 		## Find minimum lambda
 #     if(penalty=="group_row"){
@@ -117,9 +117,10 @@ MGLMtune <- function(formula, data, dist, penalty, lambdas, ngridpt,
 # 		    break
 # 		  }
 # 		}
-#     }else
+#     }else{
         minlambda <- maxlambda/N
-
+#    }
+    
 		lambdas <- exp(seq(from=log(maxlambda), to=log(minlambda), length.out=ngridpt))
 	}else{
 		ngridpt <- length(lambdas)

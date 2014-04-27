@@ -10,6 +10,7 @@
 \alias{objfun}
 \alias{objfun.grad}
 \alias{objfun.hessian}
+\alias{MGLM.loss}
 
 \title{Internal Functions}
 \description{
@@ -26,6 +27,7 @@ svt(b, lambda)
 objfun(alpha, x, y, d, p)
 objfun.grad(alpha, x, y, d, p)
 objfun.hessian(alpha, x, y, d, p)
+MGLM.loss(Y, X, beta, dist, weight, regBeta = FALSE, Beta) 
 }
 
 \author{Yiwen Zhang and Hua Zhou}
