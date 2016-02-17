@@ -44,18 +44,75 @@ require(plyr)
 require(MGLM)
 @
 
-Before getting started with model fitting, we introduce two plotting functions that can easily capture the correlation structure of the response counts. 
+Before getting started with model fitting, we explore the correlation structure of the response counts. 
 
 <<cache=TRUE>>=
 data(iris)
 Y <-iris[, 1:4]
 @
 
-<<label=scatter1, echo=TRUE, pdf=FALSE, results=hide, include=TRUE>>=
-scatter.plot(Y, facet=TRUE, free=TRUE)
+<<label=scatter1, echo=FALSE, pdf=FALSE, results=hide, include=TRUE>>=
+scatter.plot <- function(Y, main=NULL, free=TRUE, ...){
+   "ID" <- "variable1"<-"value1" <- "value" <- NULL
+  if(is.matrix(Y)){
+    Y <- as.data.frame(Y)
+    Y$ID <- rownames(Y)
+  }else if(is.data.frame(Y)){
+    Y$ID <- row.names(Y)
+  }else{
+    stop("Please provide a matrix or a data frame.")
+  }
+  meltDf <- melt(Y, id='ID')
+  names(meltDf) <- c("ID", "variable1", "value1")
+  out <- ddply(meltDf, .(variable1), function(df, df2){
+    excl <- unique(df$variable)
+    outDf <- merge(df, df2, by="ID")
+  }, Y)
+  meltDf2 <- melt(out, id=c("ID", "variable1", "value1"))
+  meltDf2$value <- ifelse(meltDf2$variable1==meltDf2$variable, NA, 
+                          meltDf2$value)
+  meltDf2 <- subset(meltDf2, !is.na(value))
+  if(!free){
+  plot <- ggplot(meltDf2, aes(x=value1, y=value)) + 
+    geom_point() + 
+    facet_grid(variable1~variable,as.table=FALSE) +
+    xlab("") + ylab("") + ggtitle(main) + 
+    theme_bw()+
+    theme(axis.text.x=element_text(size=6),
+          axis.text.y=element_text(size=6))
+  }else{
+    plot <- ggplot(meltDf2, aes(x=value1, y=value)) + 
+      geom_point() + 
+      facet_wrap(variable1~variable,as.table=FALSE, scales="free") +
+      xlab("") + ylab("") + ggtitle(main) + 
+      theme_bw()+
+      theme(axis.text.x=element_text(size=6),
+            axis.text.y=element_text(size=6))
+  }
+  
+
+  return(plot)
+}
+
+scatter.plot(Y, free=TRUE)
 @
 
-<<label=corr, echo=TRUE, pdf=FALSE, results=hide, include=TRUE>>=
+<<label=corr, echo=FALSE, pdf=FALSE, results=hide, include=TRUE>>=
+corr.plot <- function(Y, main=NULL){
+  "Var1" <- "Var2" <- "value" <- NULL
+  df <- melt(cor(Y))
+  names(df) <- c(c("Var1", "Var2", "value"))
+  plot <- qplot(x=Var1, y=Var2, data=subset(df, Var1!=Var2), 
+    fill=factor(as.character(sign(value)), levels=c("-1", "1")), 
+    alpha=value, geom="tile")+
+    theme_bw()+
+    scale_alpha(guide=FALSE)+
+    scale_fill_discrete("", drop=FALSE) + 
+    ggtitle(main)+
+    xlab("") + ylab("")
+
+  return(plot)
+}
 corr.plot(Y)
 @
 
@@ -231,11 +288,11 @@ print(negReg)
 
 Again, the Wald test declares all preditors to be significant. 
 
-The plot of fitted versis true values can be made easily with 
-<<label=fit1, echo=TRUE, pdf=FALSE, results=hide,  include=TRUE>>=
-plot(gdmReg, facet=TRUE, free=TRUE)
-@
-Faceting display is an option. The free arguement controls whether to use shared scale across all facets.
+%' The plot of fitted versis true values can be made easily with 
+%' <<label=fit1, echo=TRUE, pdf=FALSE, results=hide,  include=TRUE>>=
+%' plot(gdmReg, facet=TRUE, free=TRUE)
+%' @
+% Faceting display is an option. The free arguement controls whether to use shared scale across all facets.
 
 \subsection{Prediction}
 
@@ -274,80 +331,78 @@ Y <- rdirm(size=m, alpha=Alpha)
 
 \subsection{Select by entries}
 
-Figure \ref{fig:lasso-solpath} displays the trace of BIC along the solution path and the regularized estimate at optimal tuning parameter value.
-
 <<warning=FALSE, cache=FALSE>>=
 sweep <- MGLMtune(Y~0+X, dist="DM", penalty="sweep", ngridpt=30)
 print(sweep$select)
 @
 
 
-<<label=sweeppath, echo=TRUE, pdf=FALSE, results=hide,  include=TRUE>>=
-plot(sweep)
-@
-
-
-\begin{figure}
-\begin{center}
-\setkeys{Gin}{height=2.70in,width=2.15in}
-<<fig=TRUE, echo=FALSE>>=
-<<sweeppath>>
-@
-\end{center}
-\caption{Variable selection by entries}
-\label{fig:lasso-solpath}
-\end{figure}
+%' <<label=sweeppath, echo=TRUE, pdf=FALSE, results=hide,  include=TRUE>>=
+%' plot(sweep)
+%' @
+%' 
+%' \begin{figure}
+%' \begin{center}
+%' \setkeys{Gin}{height=2.70in,width=2.15in}
+%' <<fig=TRUE, echo=FALSE>>=
+%' <<sweeppath>>
+%' @
+%' \end{center}
+%' \caption{Variable selection by entries}
+%' \label{fig:lasso-solpath}
+%' \end{figure}
 
 
 \subsection{Select by rows}
 
-Since the rows of the parameter matrix correspond to predictors, selecting by rows performs variable selection at the predictor level. Figure \ref{fig:group-solpath} displays the trace of BIC along the solution path and the regularized estimate at optimal tuning parameter value.
+Since the rows of the parameter matrix correspond to predictors, selecting by rows performs variable selection at the predictor level. 
+
 <<warning=FALSE, cache=FALSE>>=
 group <- MGLMtune(Y~0+X, dist="DM", penalty="group", ngridpt=30)
 print(group$select)
 @
 
 
-<<label=grouppath, echo=TRUE,  pdf=FALSE, results=hide, include=TRUE>>=
-plot(group)
-@
-
-\begin{figure}
-\begin{center}
-\setkeys{Gin}{height=2.70in,width=2.15in}
-<<fig=TRUE, echo=FALSE>>=
-<<grouppath>>
-@
-\end{center}
-\caption{Variable selection by groups}
-\label{fig:group-solpath}
-\end{figure}
+%' <<label=grouppath, echo=TRUE,  pdf=FALSE, results=hide, include=TRUE>>=
+%' plot(group)
+%' @
+%' 
+%' \begin{figure}
+%' \begin{center}
+%' \setkeys{Gin}{height=2.70in,width=2.15in}
+%' <<fig=TRUE, echo=FALSE>>=
+%' <<grouppath>>
+%' @
+%' \end{center}
+%' \caption{Variable selection by groups}
+%' \label{fig:group-solpath}
+%' \end{figure}
 
 
 \subsection{Select by singular values}
 
-Nuclear norm regularization encourages low rank in the regularized estimate. Figure \ref{fig:nuclear-solpath} displays the trace of BIC along the solution path and the regularized estimate at optimal tuning parameter value.  
+Nuclear norm regularization encourages low rank in the regularized estimate. 
 
 <<warning=FALSE, cache=FALSE>>=
 nuclear <- MGLMtune(Y~0+X, dist="DM", penalty="nuclear", ngridpt=30, warm.start=FALSE)
 print(nuclear$select)
 @
 
-<<label=nuclearpath, echo=TRUE, pdf=FALSE, results=hide, include=TRUE>>=
-plot(nuclear)
-@
-
-
-
-\begin{figure}
-\begin{center}
-\setkeys{Gin}{height=2.70in,width=2.15in}
-<<fig=TRUE, echo=FALSE>>=
-<<nuclearpath>>
-@
-\end{center}
-\caption{Variable selection by singular values}
-\label{fig:nuclear-solpath}
-\end{figure}
+%' <<label=nuclearpath, echo=TRUE, pdf=FALSE, results=hide, include=TRUE>>=
+%' plot(nuclear)
+%' @
+%' 
+%' 
+%' 
+%' \begin{figure}
+%' \begin{center}
+%' \setkeys{Gin}{height=2.70in,width=2.15in}
+%' <<fig=TRUE, echo=FALSE>>=
+%' <<nuclearpath>>
+%' @
+%' \end{center}
+%' \caption{Variable selection by singular values}
+%' \label{fig:nuclear-solpath}
+%' \end{figure}
 
 \end{document}

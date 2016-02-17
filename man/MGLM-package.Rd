@@ -12,8 +12,8 @@ The package provides functions that (1) fit multivariate discrete distributions,
 \tabular{ll}{
 Package: \tab MGLM\cr
 Type: \tab Package\cr
-Version: \tab 0.0.1\cr
-Date: \tab 2013-07-06\cr
+Version: \tab 0.0.7\cr
+Date: \tab 2016-02-01\cr
 License: \tab  GPL (>= 2)\cr
 Depends: \tab R (>= 1.15.0), methods, stats, parallel \cr
 }

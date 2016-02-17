@@ -32,7 +32,7 @@ MGLMtune(formula, data, dist, penalty, lambdas, ngridpt, warm.start=TRUE,
 	penalty type for the regularization term. Can be chosen from \code{"sweep"}, 
 	\code{"group"}, or \code{"nuclear"}. See \link{MGLMsparsereg} for the description of each penalty type. 
 }
-\item{lambdas}{
+  \item{lambdas}{
 	an optional vector of the penalty values to tune.  If missing, the vector of 
 	penalty values will be set inside the function.  \code{ngridpt} must
 	be provided if \code{lambdas} is missing.
@@ -51,14 +51,13 @@ MGLMtune(formula, data, dist, penalty, lambdas, ngridpt, warm.start=TRUE,
 }
   \item{keep.path}{
   an optional logical variable controling whether to output the whole solution path. 
-  The default is \code{keep.path=FALSE}. If \code{keep.path=TRUE}, the sparse regression
-  result at each grid point will be kept, and saved in the output object 
-  \code{$select.list}.
-}
+  The default is \code{keep.path=FALSE}. If \code{keep.path=TRUE}, the sparse regression result at each grid point will be kept, and saved in the output object 
+  \code{select.list}.
+  }
   \item{display}{
 	an optional logical variable to specify whether to show each tuning 
 	step.
-}
+  }
   \item{weight}{
   an optional vector of weights assigned to each row of the data. 
 	Should be \code{NULL} or a numeric vector. Could be a variable from the \code{data}, 
@@ -70,12 +69,12 @@ MGLMtune(formula, data, dist, penalty, lambdas, ngridpt, warm.start=TRUE,
 	an optional matrix of initial value of the parameter estimates.
 	Should have the compatible dimension with the data. See \code{\link{dist}} for
 	details of dimensions in each distribution.
-}
+  }
   \item{penidx}{
 	a logical vector indicating the variables to be penalized. The default value is \code{rep(TRUE, p)}, which means all predictors are subject to regularization. If \code{X} contains intercept, use \code{penidx=c(FALSE,rep(TRUE,p-1))}.  
   }
 
- \item{maxiters}{
+  \item{maxiters}{
 	an optional numeric controlling the maximum number of iterations. The default
 	value is \code{maxiters=150}.
   }
@@ -114,8 +113,9 @@ Yiwen Zhang and Hua Zhou
 \seealso{
 \code{\link{MGLMsparsereg}}
 }
+
 \examples{
-\donttest{
+\dontrun{
 set.seed(345)
 n <- 200
 d <- 4
@@ -131,7 +131,6 @@ m <- rbinom(n, 80, 0.5)
 Y <- rgdirm(m, Alpha, Beta)
 
 select <- MGLMtune(Y~0+X, dist="GDM", penalty="group", ngridpt=30, display=TRUE)
-plot(select)
 }
 }
 \keyword{Sparse regression}

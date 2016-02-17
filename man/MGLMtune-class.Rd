@@ -2,7 +2,6 @@
 \Rdversion{1.1}
 \docType{class}
 \alias{MGLMtune-class}
-\alias{plot, MGLMtune-method}
 \alias{print, MGLMtune-method}
 
 \title{Class \code{"MGLMtune"}}
@@ -29,8 +28,6 @@ Objects can be created by calls of the form \code{new("MGLMsparsereg", ...)}.
   \describe{
     \item{print}{\code{signature(x = "MGLMtune")}: 
 	print out sparse regression solution path from class \code{"MGLMtune"}.}
-    \item{plot}{\code{signature(x = "MGLMtune")}: 
-  plot tunign solution path from class \code{"MGLMtune"}.}
 	}
 }
 \author{

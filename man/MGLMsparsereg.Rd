@@ -144,7 +144,7 @@ Yiwen Zhang and Hua Zhou
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \examples{
-\donttest{
+\dontrun{
 ##----------------------------------------##
 ## Generate Dirichlet Multinomial data
 dist <- "DM"

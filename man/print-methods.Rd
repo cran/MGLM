@@ -1,4 +1,5 @@
 \name{print-methods}
+\Rdversion{1.1}
 \docType{methods}
 \alias{print-methods}
 \alias{print,ANY-method}
@@ -7,6 +8,7 @@
 \alias{print,MGLMsparsereg-method}
 \alias{print,MGLMtune-method}
 \title{Print out the defined objects }
+
 \description{
 Print out the objects of class \code{"MGLMfit"}, \code{"MGLMreg"},
 \code{"MGLMsparsereg"}, \code{"MGLMtune"} in a nice way. 

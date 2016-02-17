@@ -12,10 +12,9 @@ export(MGLMtune)
 export(rdirm)
 export(rgdirm)
 export(rnegmn)
-export(scatter.plot)
-export(corr.plot)
 
-exportMethods(print,predict, plot)
+
+exportMethods(print,predict)
 
 exportClasses(
     "MGLMfit",
@@ -27,6 +26,4 @@ exportClasses(
 import(methods)
 import(stats)
 import(parallel)
-import(ggplot2)
-import(reshape2)
-import(plyr)
+

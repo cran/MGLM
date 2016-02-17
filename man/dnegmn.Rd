@@ -56,7 +56,6 @@ A vector of length \eqn{n} with value \eqn{\log(P(y|p, \beta))}
 Yiwen Zhang and Hua Zhou
 }
 \examples{
-\donttest{
 m <- 20
 n <- 10
 p <- 5
@@ -68,6 +67,5 @@ prob <- alpha/(rowSums(alpha)+1)
 b <- exp(X\%*\%rep(0.3,p)) 
 Y <- rnegmn(prob=prob, beta=rep(10, n))
 dnegmn(Y, prob, b)
-}
 }
 \keyword{ log pdf }
