@@ -1,0 +1,43 @@
+citHeader("To cite MGLM in publications please use:")
+
+# R >= 2.8.0 passes package metadata to citation().
+if(!exists("meta") || is.null(meta)) meta <- packageDescription("MGLM")
+year <- sub("-.*", "", meta$Date)
+note <- sprintf("R package version %s", meta$Version)
+
+citEntry(entry = "Article",
+  title        = "Regression Models for Multivariate Count Data",
+  author       = personList(as.person("Yiwen Zhang"),
+                            as.person("Hua Zhou"),
+			    as.person("Jin Zhou"),
+			    as.person("Wei Sun")),
+  journal      = "Journal of Computational and Graphical Statistics",
+  year         = "2017",
+  volume       = "26",
+  number       = "1",
+  pages        = "1--13",
+  url          = "http://dx.doi.org/10.1080/10618600.2016.1154063",
+
+  textVersion  =
+  paste("Yiwen Zhang, Hua Zhou, Jin Zhou, Wei Sun (2017).",
+        "Regression Models for Multivariate Count Data.",
+        "Journal of Computational and Graphical Statistics, 26(1), 1--13.",
+        "URL http://dx.doi.org/10.1080/10618600.2016.1154063.")
+)
+
+citEntry(entry = "Manual",
+         title = "{MGLM}: Multivariate Response Generalized Linear Models",
+         author = personList(as.person("Yiwen Zhang"), as.person("Hua Zhou")),
+         year = year,
+         note = note,
+         url = "https://CRAN.R-project.org/package=MGLM",
+
+         textVersion =
+         paste("Yiwen Zhang and Hua Zhou",
+   	       sprintf("(%s).", year),
+               "MGLM: Multivariate Response Generalized Linear Models.",
+	       paste(note, ".", sep = ""),
+               "URL https://CRAN.R-project.org/package=MGLM"),
+
+        header = "and"
+)

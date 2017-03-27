@@ -20,7 +20,7 @@ exportClasses(
     "MGLMfit",
     "MGLMreg",
     "MGLMsparsereg",
-	"MGLMtune"
+	  "MGLMtune"
 )
 
 import(methods)

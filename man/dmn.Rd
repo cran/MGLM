@@ -2,10 +2,10 @@
 \alias{dmn}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Calculate log of multinomial probability mass function
+Calculate the log of the multinomial probability mass function
 }
 \description{
-Calculate log of multinomial probability mass function.
+Calculate the log of the multinomial probability mass function.
 }
 \usage{
 dmn(Y, prob)
@@ -13,14 +13,14 @@ dmn(Y, prob)
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{Y}{
-the multivariate count matrix with dimension \eqn{n \times d}, where 
+The multivariate count matrix with dimension \eqn{n \times d}, where 
 \eqn{n = 1,2, \ldots} is number of observations and \eqn{d=2,\ldots} is number of categories.  
 }
   \item{prob}{
-the probability parameter of the multinomial distribution.  \code{prob}
+The probability parameter of the multinomial distribution.  \code{prob}
 can be either a vector of length \eqn{d} or a matrix with matching 
 size of \code{Y}.  If \code{prob} is a vector, it will be replicated \eqn{n} 
-times to match the dimension of \code{Y}. If sum(s) of \code{prob} is not 1, it will be automatically scaled to have sum 1.
+times to match the dimension of \code{Y}. If the sum(s) of \code{prob} is not 1, it will be automatically scaled to have sum 1.
 }
 }
 \details{
@@ -56,7 +56,7 @@ Yiwen Zhang and Hua Zhou
 \examples{
 m <- 20
 prob <- c(0.1, 0.2)
-dm.Y <- rdirm(m, prob, n=10)	
+dm.Y <- rdirm(n=10, m, prob)	
 pdfln <- dmn(dm.Y, prob)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

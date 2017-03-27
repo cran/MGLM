@@ -10,7 +10,7 @@
 Fit multivariate response GLM regression
 }
 \description{
-\code{MGLMreg} fits the multivariate response generalized linear models,
+\code{MGLMreg} fits multivariate response generalized linear models,
 specified by a symbolic description of the linear predictor and
 a description of the error distribution.
 }
@@ -27,72 +27,72 @@ DMD.NegMN.Alpha.reg(
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{formula}{an object of class \code{formula} (or one that can be coerced
+  \item{formula}{An object of class \code{formula} (or one that can be coerced
   to that class): a symbolic description of the model to be fitted.
   The response has to be on the left hand side of ~.
 }
   \item{data}{
-  an optional data frame, list or environment (or object coercible by 
+  An optional data frame, list or environment (or object coercible by 
   as.data.frame to a data frame) containing the variables in the model.
   If not found in \code{data} when using function \code{MGLMreg}, the variables 
   are taken from \code{environment(formula)}, typically the environment from
   which \code{MGLMreg} is called.
 }
   \item{Y, X}{
-  for \code{DMD.MN.reg}, \code{DMD.DM.reg}, \code{DMD.GDM.reg}, and
+  For \code{DMD.MN.reg}, \code{DMD.DM.reg}, \code{DMD.GDM.reg}, and
   \code{DMD.NegMN.reg}, \code{X} is a design matrix of dimension 
   \code{n*(p+1)} and \code{Y} is the response matrix of dimension 
   \code{n*d}.
 }
   \item{dist}{
-	a description of the error distribution to fit. See \code{\link{dist}} for details. 
+	A description of the error distribution to fit. See \code{\link{dist}} for details. 
 }
   \item{weight}{
-	an optional vector of weights assigned to each row of the data. 
+	An optional vector of weights assigned to each row of the data. 
 	Should be \code{NULL} or a numeric vector. Could be a variable from \code{data}, 
 	or a variable from \code{environment(formula)} with the length equal to
 	the number of rows of the data.
 	If \code{weight=NULL}, equal weights of ones will be assigned.
 }
   \item{init}{
-	an optional matrix of initial value of the parameter estimates.
+	An optional matrix of initial value of the parameter estimates.
 	Should have the compatible dimension with \code{data}. See \code{\link{dist}} for
 	details of the dimensions in each distribution.
 }
   \item{epsilon}{
-	an optional numeric controlling the stopping criterion. The algorithm terminates when the relative change in the loglikelihoods of two successive iterates is less than \code{epsilon}.  The default value is \code{epsilon=1e-8}.
+	An optional numeric controlling the stopping criterion. The algorithm terminates when the relative change in the loglikelihoods of two successive iterates is less than \code{epsilon}.  The default value is \code{epsilon=1e-8}.
 }
   \item{maxiters}{
-	an optional numeric controlling the maximum number of iterations. The default
+	An optional numeric controlling the maximum number of iterations. The default
 	value is \code{maxiters=150}.
 }
   \item{display}{
-	an optional logical variable controlling the display of iterations. The default
+	An optional logical variable controlling the display of iterations. The default
 	value is \code{display=FALSE}.
 }
 \item{LRT}{
-	an optional logical variable controlling whether to perform likelihood ratio test on
+	An optional logical variable controlling whether to perform likelihood ratio test on
 	each predictor. The default value is \code{LRT=FALSE}, in which case only the Wald test is performed.
 }
 \item{parallel}{
-   an optional logical variable controlling whether to perform parallel computing. 
+   An optional logical variable controlling whether to perform parallel computing. 
    On a multi-core Windows machine, a cluster is created based on socket; 
 	on a multi-core Linux/Mac machine, a cluster is created based on forking. The default
   value is \code{parallel=FALSE}.
 }
 \item{cores}{
-	an optional value specifying the number of cores to use.  
+	An optional value specifying the number of cores to use.  
 	Default value is half of the logical cores.
 }
 \item{cl}{
-	a cluster object, created by the package \pkg{parallel} or by package \pkg{snow}. 
+	A cluster object, created by the package \pkg{parallel} or by package \pkg{snow}. 
 	If \code{parallel=TRUE}, use the registered default cluster; if \code{parallel=FALSE}, any given value to \code{cl} will be ignored.
 }
 \item{sys}{
-	the operating system.  Will be used when choosing parallel type. 
+	The operating system.  Will be used when choosing parallel type. 
 }	
 \item{regBeta}{
-	an optional logical variable.  When \code{dist="NegMN"}, the user can decide 
+	An optional logical variable.  When \code{dist="NegMN"}, the user can decide 
 	whether to run regression on the over dispersion parameter \eqn{\beta}.  The 
 	default is \code{regBeta=FALSE}. 
 }
@@ -113,24 +113,24 @@ Returns an object of class \code{"MGLMreg"}.
 An object of class \code{"MGLMreg"} is a list 
 containing at least the following components: 
 
-\item{coefficients}{the estimated regression coefficients.}
-\item{SE}{the standard errors of the estimates.}
-\item{Hessian}{the Hessian at the estimated parameter values.}
-\item{gradient}{the gradient at the estimated parameter values.}
-\item{wald.value}{the Wald statistics.}
-\item{wald.p}{the p values of Wald test.}
-\item{test}{test statistic and the corresponding p-value. if 
+\item{coefficients}{The estimated regression coefficients.}
+\item{SE}{The standard errors of the estimates.}
+\item{Hessian}{The Hessian at the estimated parameter values.}
+\item{gradient}{The gradient at the estimated parameter values.}
+\item{wald.value}{The Wald statistics.}
+\item{wald.p}{The p values of Wald test.}
+\item{test}{Test statistic and the corresponding p-value. If 
 \code{LRT=FALSE}, only returns test results
 from Wald test; if \code{LRT=TRUE}, returns the test results from
 both Wald test and likelihood ratio test.}
-\item{logL}{the final loglikelihood.}
+\item{logL}{The final loglikelihood.}
 \item{BIC}{Bayesian information criterion. }
 \item{AIC}{Akaike information criterion.}
-\item{fitted}{the fitted values from the regression model}
-\item{iter}{the number of iterations used.}
-\item{call}{the matched call.}
-\item{distribution}{the distribution fitted.}
-\item{data}{the data used to fit the model.}
+\item{fitted}{The fitted values from the regression model}
+\item{iter}{The number of iterations used.}
+\item{call}{The matched call.}
+\item{distribution}{The distribution fitted.}
+\item{data}{The data used to fit the model.}
 }
 \author{
 Yiwen Zhang and Hua Zhou
@@ -154,7 +154,7 @@ alpha <- matrix(1, p, d-1)
 beta <- matrix(1, p, d-1)
 Alpha <- exp(X\%*\%alpha)
 Beta <- exp(X\%*\%beta)
-gdm.Y <- rgdirm(m, Alpha, Beta)
+gdm.Y <- rgdirm(n, m, Alpha, Beta)
 
 ##----------------------------------------##
 ## Regression

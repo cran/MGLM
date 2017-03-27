@@ -36,7 +36,7 @@ Objects can be created by calls of the form \code{new("MGLMfit", ...)}.
     \item{\code{distribution}:}{Object of class \code{"character"},
     the distribution fitted.}
 	\item{\code{fitted}:}{Object of class \code{"vector"},
-	the fitted mean of each category}
+	the fitted mean of each category.}
   }
 }
 \section{Methods}{

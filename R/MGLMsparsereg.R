@@ -43,7 +43,7 @@ MGLMsparsereg <- function(formula, data, dist, lambda, penalty, weight, init, pe
     if (penalty == "group") 
         penalty <- "group_row"
     if (!penalty %in% c("sweep", "group_row", "nuclear")) 
-        stop("penalty type can only be sweep, group, or nuclear.")
+        stop("Penalty type can only be sweep, group, or nuclear.")
     if (missing(penidx)) 
         penidx <- rep(TRUE, p)
     if (missing(init)) {
@@ -330,7 +330,7 @@ matrix_threshold <- function(X, lambda, penalty) {
 ## ============================================================================##
 lsq_thresholding <- function(b, lambda) {
     if (lambda < 0) 
-        stop("penalty constant lambda should be nonnegative")
+        stop("Penalty constant lambda should be nonnegative.")
     
     B <- b
     B[abs(b) <= lambda] <- 0

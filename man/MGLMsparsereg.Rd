@@ -16,70 +16,70 @@ MGLMsparsereg.fit(Y, X, dist, lambda, penalty, weight,
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-   \item{formula}{an object of class \code{formula} (or one that can be coerced
+   \item{formula}{An object of class \code{formula} (or one that can be coerced
   to that class): a symbolic description of the model to be fitted.
   The response has to be on the left hand side of ~. 
 }
   \item{data}{
-  an optional data frame, list or environment (or object coercible by 
+  An optional data frame, list or environment (or object coercible by 
   \code{as.data.frame} to a data frame) containing the variables in the model.
   If not found in \code{data} when using function \code{MGLMsparsereg}, the variables 
   are taken from \code{environment(formula)}, typically the environment from
   which \code{MGLMsparsereg} is called.
 }
   \item{Y}{
-  a matrix containing the multivariate categorical response data. 
+  A matrix containing the multivariate categorical response data. 
   Rows of the matrix represent observations, while columns are the different
-  categories.  Rows and colummns of all zeros are automatically removed when
+  categories.  Rows and columns of all zeros are automatically removed when
   \code{dist="MN"}, \code{"DM"}, or \code{"GDM"}.
   }
   \item{X}{
-   design matrix (including intercept).  
+   Design matrix (including intercept).  
    Number of rows of the matrix should match that of \code{Y}. 
   }
   \item{dist}{
-	a description of the error distribution to fit. See \code{\link{dist}} for details.
+	A description of the error distribution to fit. See \code{\link{dist}} for details.
   }
   \item{weight}{
-  an optional vector of weights assigned to each row of the data. 
+    An optional vector of weights assigned to each row of the data. 
 	Should be \code{NULL} or a numeric vector. Could be a variable from \code{data}, 
 	or a variable from \code{environment(formula)} with the length equal to
 	the number of rows of the data.
 	If \code{weight=NULL}, equal weights of ones will be assigned.
   }
   \item{init}{
-	an optional matrix of initial value of the parameter estimates.
+	An optional matrix of initial value of the parameter estimates.
 	Should have the compatible dimension with the data. See \code{\link{dist}} for
 	details of the dimensions in each distribution.
 }
   \item{lambda}{
-	penalty parameter.  
+	Penalty parameter.  
   }
   \item{penalty}{
-	penalty type for the regularization term. Can be chosen from \code{"sweep"}, 
+	Penalty type for the regularization term. Can be chosen from \code{"sweep"}, 
 	\code{"group"}, or \code{"nuclear"}. See Details for the description of each penalty type. 
   }
   \item{penidx}{
-	a logical vector indicating the variables to be penalized. The default value is \code{rep(TRUE, p)}, which means all predictors are subject to regularization. If \code{X} contains intercept, use \code{penidx=c(FALSE,rep(TRUE,p-1))}.
+	A logical vector indicating the variables to be penalized. The default value is \code{rep(TRUE, p)}, which means all predictors are subject to regularization. If \code{X} contains intercept, use \code{penidx=c(FALSE,rep(TRUE,p-1))}.
   }
   \item{maxiters}{
-	an optional numeric controlling the maximum number of iterations. The default
+	An optional numeric controlling the maximum number of iterations. The default
 	value is maxiters=150.
   }
   \item{ridgedelta}{
-	an optional numeric controlling the behavior of the Nesterov's accelerated proximal gradient method. The default value is \eqn{\frac{1}{pd}}.
+	An optional numeric controlling the behavior of the Nesterov's accelerated proximal gradient method. The default value is \eqn{\frac{1}{pd}}.
   }
   \item{epsilon}{
-  an optional numeric controlling the stopping criterion. The algorithm terminates when the relative change in the objective values of two successive iterates is less then \code{epsilon}.
+  An optional numeric controlling the stopping criterion. The algorithm terminates when the relative change in the objective values of two successive iterates is less then \code{epsilon}.
   	The default value is \code{epsilon=1e-5}.
   }
   \item{regBeta}{
-	an optional logical variable used when running negative multinomial regression (\code{dist="NegMN"}).  
+	An optional logical variable used when running negative multinomial regression (\code{dist="NegMN"}).  
 	\code{regBeta} controls whether to run regression on the over-dispersion parameter.
 	The default is \code{regBeta=FALSE}.
   }
   \item{overdisp}{
-	an optional numerical variable used only when fitting sparse negative multinomial 
+	An optional numerical variable used only when fitting sparse negative multinomial 
 	model \code{dist="NegMN"} and \code{regBeta=FALSE}.  \code{overdisp} gives the over dispersion value
 	for all the observations.  The default value is estimated using negative-multinomial regression.  When \code{dist="MN", "DM", "GDM"} or \code{regBeta=TRUE}, the value of \code{overdisp} is ignored.
   }
@@ -122,20 +122,20 @@ Returns an object of class \code{"MGLMsparsereg"}.
 An object of class \code{"MGLMsparsereg"}
 is a list containing at least the following components:  
 \item{coefficients}{the estimated matrix of regression coefficients.}
-\item{logL}{the final loglikelihood value.}
+\item{logL}{The final loglikelihood value.}
 \item{AIC}{Akaike information criterion.}
 \item{BIC}{Bayesian information criterion.}
-\item{Dof}{degrees of freedom of the estimated parameter.}
-\item{iter}{number of iterations used. }
-\item{maxlambda}{the maxmum tuning parameter such that 
+\item{Dof}{Degrees of freedom of the estimated parameter.}
+\item{iter}{Number of iterations used. }
+\item{maxlambda}{The maxmum tuning parameter such that 
 	the estimated coefficients are not all zero.  This value is returned only
 	when the tuning parameter \code{lambda} given to the function is large enough 
 	such that all the parameter estimates are zero; otherwise, \code{maxlambda}
 	is not computed.}
-\item{call}{a matched call.}
-\item{data}{the data used to fit the model: a list of the predictor matrix
+\item{call}{A matched call.}
+\item{data}{The data used to fit the model: a list of the predictor matrix
 and the response matrix.}
-\item{penalty}{the penalty chosen when running the penalized regression.}
+\item{penalty}{The penalty chosen when running the penalized regression.}
 }
 \author{
 Yiwen Zhang and Hua Zhou

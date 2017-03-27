@@ -42,14 +42,14 @@ MGLMreg <- function(formula, data, dist, init, weight, epsilon = 1e-08, maxiters
     if (dist != "NegMN") {
         if (any(rowSums(Y) == 0)) {
             rmv <- rowSums(Y) == 0
-            warning(paste(sum(rmv), " rows are removed because the row sums are 0", 
+            warning(paste(sum(rmv), " rows are removed because the row sums are 0.", 
                 "\n", sep = ""))
             Y <- Y[!rmv, ]
             X <- X[!rmv, ]
         }
         if (any(colSums(Y) == 0)) {
             rmv <- colSums(Y) == 0
-            warning(paste(sum(rmv), " columns are removed because the column sums are 0", 
+            warning(paste(sum(rmv), " columns are removed because the column sums are 0.", 
                 "\n", sep = ""))
             Y <- Y[, !rmv]
         }
@@ -64,20 +64,20 @@ MGLMreg <- function(formula, data, dist, init, weight, epsilon = 1e-08, maxiters
     ## ----------------------------------------## 
     ## Check weight length and values
     if (nrow(X) != N) 
-        stop("Unequal numbers of observations in X and Y")
+        stop("Unequal numbers of observations in X and Y.")
     if (is.null(weight)) 
         weight <- rep(1, N)
     if (!is.null(weight) && length(weight) != N) 
-        stop("Length of weights doesn't match with the sample size")
+        stop("Length of weights doesn't match with the sample size.")
     if (!is.null(weight) && any(weight < 0)) 
-        stop("Negative weights are not allowed")
+        stop("Negative weights are not allowed.")
     if (missing(weight)) 
         weight <- rep(1, N)
     
     ## ----------------------------------------## 
     ## Check distribution
     if (!is.element(dist, c("MN", "DM", "NegMN", "GDM"))) 
-        stop(paste("Dist '", dist, "' not valid\n", sep = ""))
+        stop(paste("Dist '", dist, "' is not valid.", sep = ""))
     
     ## ----------------------------------------## 
     ## Input missing weight and cores
@@ -112,7 +112,7 @@ MGLMreg <- function(formula, data, dist, init, weight, epsilon = 1e-08, maxiters
                     weights = weight)$coefficients
                 }
             } else if (any(dim(init) != c(p, (d - 1)))) 
-                stop("Dimension of the initial values is not compatible with the data")
+                stop("Dimension of the initial values is not compatible with the data.")
             
             est <- eval(call("DMD.MN.reg", Y = Y, X = X, weight = weight, init = init, 
                 epsilon = epsilon, maxiters = maxiters, display = display, parallel = parallel, 
@@ -121,7 +121,7 @@ MGLMreg <- function(formula, data, dist, init, weight, epsilon = 1e-08, maxiters
             ## ----------------------------------------## 
             ## DM
             if (N < p * d) 
-                warning(paste("Sample size is smaller than the number of parameters", 
+                warning(paste("Sample size is smaller than the number of parameters.", 
                   "\n", sep = ""))
             
             if (missing(init)) {
@@ -136,7 +136,7 @@ MGLMreg <- function(formula, data, dist, init, weight, epsilon = 1e-08, maxiters
                 }
                 options(warn = ow)
             } else if (any(dim(init) != c(p, d))) {
-                stop("Dimension of the initial values is not compatible with the data")
+                stop("Dimension of the initial values is not compatible with the data.")
             }
             est <- eval(call("DMD.DM.reg", Y = Y, X = X, weight = weight, init = init, 
                 epsilon = epsilon, maxiters = maxiters, display = display, parallel = parallel, 
@@ -145,7 +145,7 @@ MGLMreg <- function(formula, data, dist, init, weight, epsilon = 1e-08, maxiters
             ## ----------------------------------------## 
             ## NegMN
             if (N < p * (d + 1)) 
-                warning(paste("Sample size is smaller than the number of parameters", 
+                warning(paste("Sample size is smaller than the number of parameters.", 
                   "\n", sep = ""))
             
             if (regBeta) {
@@ -211,7 +211,7 @@ MGLMreg <- function(formula, data, dist, init, weight, epsilon = 1e-08, maxiters
         } else if (any(dim(init) != c(p, 2 * (d - 1)))) {
             stop("Dimension of the initial values is not compatible with the data")
         } else if (N < p * (d - 1) * 2) 
-            warning(paste("Sample size is smaller than the number of parameters", 
+            warning(paste("Sample size is smaller than the number of parameters.", 
                 "\n", sep = ""))
         
         est <- eval(call("DMD.GDM.reg", Y = Y, X = X, weight = weight, init = init, 
@@ -776,7 +776,8 @@ DMD.DM.reg <- function(Y, init, X, weight, epsilon, maxiters, display, parallel,
     ## Check diverge
     ## ---------------------------------------------------------------## 
     if (any(Beta == Inf, is.nan(Beta), is.nan(tmpvector2), is.nan(tmpvector), is.nan(tmpmatrix2))) {
-        warning(paste("Out of range of trigamma. \n                  No standard error or tests results reported.\n                  Regression parameters diverge.  Recommend multinomial logit model.", 
+        warning(paste("Out of range of trigamma(). \n No standard error or tests results reported.\n
+                      Regression parameters diverge.  Recommend multinomial logit model.", 
             "\n", sep = ""))
     } else {
         ## ----------------------------------------## 
@@ -937,7 +938,8 @@ DMD.GDM.reg <- function(Y, init, X, weight, epsilon, maxiters, display, parallel
     ## ----------------------------------------##     
     if (mean(gradients^2) > 1e-04) {
         warning(paste("The algorithm doesn't converge within", sum(niter), "iterations. The norm of the gradient is ", 
-            sum(gradients^2), " Please interpret hessian matrix and MLE with caution.", 
+            sum(gradients^2, na.rm = T), 
+            " Please interpret hessian matrix and MLE with caution.", 
             sep = " "))
     }
     

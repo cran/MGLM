@@ -1,9 +1,9 @@
 Package: MGLM
-Version: 0.0.7
-Date: 2016-02-01
+Version: 0.0.8
+Date: 2017-03-15
 Title: Multivariate Response Generalized Linear Models
-Author: Yiwen Zhang <yzhang31@ncsu.edu> and Hua Zhou <hua_zhou@ncsu.edu>
-Maintainer: Yiwen Zhang <yzhang31@ncsu.edu>
+Author: Yiwen Zhang <zhangyiwen1015@gmail.com> and Hua Zhou <huazhou@ucla.edu>
+Maintainer: Yiwen Zhang <zhangyiwen1015@gmail.com>
 Depends: R (>= 3.0.0)
 Imports: methods, stats, parallel
 Suggests: ggplot2, plyr, reshape2
@@ -13,5 +13,5 @@ LazyData: yes
 Repository: CRAN
 License: GPL (>= 2)
 NeedsCompilation: no
-Packaged: 2016-02-17 04:07:14 UTC; yiwen
-Date/Publication: 2016-02-17 09:14:37
+Packaged: 2017-03-25 23:30:37 UTC; huazhou
+Date/Publication: 2017-03-27 15:21:50 UTC

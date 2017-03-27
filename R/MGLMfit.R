@@ -21,11 +21,11 @@ MGLMfit <- function(data, dist, init, weight, epsilon = 1e-08, maxiters = 150, d
     ## Check weights
     ## ----------------------------------------##
     if (!missing(weight) && length(weight) != N) 
-        stop("Length of weights doesn't match with the sample size")
+        stop("Length of weights doesn't match with the sample size.")
     if (!missing(weight) && any(weight < 0)) 
-        stop("Negative weights are not allowed")
-    if (!is.element(dist, c("DM", "GDM", "NegMN"))) 
-        stop(paste("Dist '", dist, "' not valid\n", sep = ""))
+        stop("Negative weights are not allowed.")
+    if (!is.element(dist, c("MN", "DM", "GDM", "NegMN"))) 
+        stop(paste("Dist '", dist, "' is not valid. \n", sep = ""))
     
     ##----------------------------------------## 
     ## Give warnings about zero rows
@@ -33,11 +33,11 @@ MGLMfit <- function(data, dist, init, weight, epsilon = 1e-08, maxiters = 150, d
     if (dist != "NegMN") {
         if (any(rowSums(data) == 0)) {
             rmv <- sum(rowSums(data) == 0)
-            warning(paste(rmv, " rows are removed because the row sums are 0", sep = ""))
+            warning(paste(rmv, " rows are removed because the row sums are 0.", sep = ""))
         }
         if (any(colSums(data) == 0)) {
             rmv <- sum(colSums(data) == 0)
-            warning(paste(rmv, " columns are removed because the column sums are 0", 
+            warning(paste(rmv, " columns are removed because the column sums are 0.", 
                 sep = ""))
         }
     }
@@ -45,21 +45,35 @@ MGLMfit <- function(data, dist, init, weight, epsilon = 1e-08, maxiters = 150, d
     ##----------------------------------------## 
     ## Fit distribution
     ##----------------------------------------##
-    if (dist == "DM") {
+    if (dist == "MN") {
+        t <- sum(data)
+        m <- rowSums(data)
+        est <- list()
+        if (missing(weight)) weight <- rep(1, N)
+        est$estimate <-apply(data/m, 2, mean) 
+        est$SE <- sqrt(est$estimate * (1-est$estimate)/N)
+        p_MN <- t(matrix(est$estimate, d, N))
+        est$logL <- sum(weight * data * log(p_MN)) + sum(lgamma(m + 1)) - sum(lgamma(data + 1))
+        est$BIC <- -2 * est$logL + log(N) * (d - 1)
+        est$AIC <- -2 * est$logL + 2 * (d-1)
+        est$LRTpvalue <- NULL
+        est$iter <- NULL
+        
+    } else if (dist == "DM") {
         if (!missing(init) && length(init) != d) 
-            stop("Dimension of the initial values is not compatible with the data")
+            stop("Dimension of the initial values is not compatible with the data.")
         est <- DMD.DM.fit(data = data, init = init, weight = weight, epsilon = epsilon, 
             maxiters = maxiters, display = display)
         
     } else if (dist == "GDM") {
         if (!missing(init) && length(init) != 2 * (d - 1)) 
-            stop("Dimension of the initial values is not compatible with the data")
+            stop("Dimension of the initial values is not compatible with the data.")
         est <- DMD.GDM.fit(data = data, init = init, weight = weight, epsilon = epsilon, 
             maxiters = maxiters, display = display)
         
     } else if (dist == "NegMN") {
         if (!missing(init) && length(init) != (d + 2)) 
-            stop("Dimension of the initial values is not compatible with the data")
+            stop("Dimension of the initial values is not compatible with the data.")
         est <- DMD.NegMN.fit(data = data, init = init, weight = weight, epsilon = epsilon, 
             maxiters = maxiters, display = display)
     }
@@ -67,7 +81,7 @@ MGLMfit <- function(data, dist, init, weight, epsilon = 1e-08, maxiters = 150, d
     ##----------------------------------------## 
     ## Clean up the results
     ##----------------------------------------## 
-    if (dist == "DM") {
+    if (dist %in% c("MN", "DM")) {
         if (!is.null(colnames(data))) {
             names(est$estimate) <- paste("alpha", colnames(data), sep = "_")
         } else {
@@ -89,8 +103,8 @@ MGLMfit <- function(data, dist, init, weight, epsilon = 1e-08, maxiters = 150, d
         }
     }
     
-    est$distribution <- ifelse(dist == "DM", "Dirichlet Multinomial", ifelse(dist == 
-        "GDM", "Generalized Dirichlet Multinomial", "Negative Multinomial"))
+    est$distribution <- ifelse(dist=="MN", "Multinomial", ifelse(dist == "DM", "Dirichlet Multinomial", ifelse(dist == 
+        "GDM", "Generalized Dirichlet Multinomial", "Negative Multinomial")))
     
     class(est) <- "MGLMfit"
     return(est)
@@ -214,7 +228,7 @@ DMD.DM.fit <- function(data, init, weight, epsilon = 1e-08, maxiters = 150, disp
     dl <- (colSums(s/(outer(rep(1, max), alpha_hat) + outer(k, rep(1, d)))) - sum(r/(sum(alpha_hat) + 
         k)))
     if (mean(dl^2) > 1e-04) 
-        warning(paste("The algorithm doesn't converge within", niter, sep = ""))
+        warning(paste("The algorithm doesn't converge within", niter, "iterations.", sep = " "))
     
     ##----------------------------------------## 
     ## Compute output statistics 1)SE 
@@ -313,7 +327,7 @@ DMD.GDM.fit <- function(data, init, weight, epsilon = 1e-08, maxiters = 150, dis
     ##Check the gradients
     ##----------------------------------------## 
     if (mean(gradients^2) > 1e-04) 
-        warning(paste("The algorithm doesn't converge within", niter, sep = ""))
+        warning(paste("The algorithm doesn't converge within", niter, "iterations.", sep = " "))
     
     ##----------------------------------------## 
     ## Compute output statistics
@@ -367,7 +381,7 @@ DMD.NegMN.fit <- function(data, init, weight, epsilon = 1e-08, maxiters = 150, d
             init_pi[d + 1] <- mbar/s2
             init_pi <- c((init_pi[d + 1] * Xj)/(init_beta * N), mbar/s2)
         } else {
-            warning("Warning: this is underdispersion, better use other models.\n\t\t\t\tHere we assign beta_init=1")
+            warning("The data shows underdispersion, better use other models.\n\t\t\t\tbeta_init=1 is assigned here.")
             init_beta <- 1
             init_pi <- rep(1/(d + 1), d + 1)
         }

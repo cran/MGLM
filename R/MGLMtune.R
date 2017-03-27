@@ -53,7 +53,7 @@ MGLMtune <- function(formula, data, dist, penalty, lambdas, ngridpt, warm.start 
     if (penalty == "group") 
         penalty <- "group_row"
     if (!penalty %in% c("sweep", "group_row", "nuclear")) 
-        stop("penalty type can only be sweep, group, or nuclear.")
+        stop("Penalty type can only be sweep, group, or nuclear.")
     ## ----------------------------------------##
     ## regularization set
     ## ----------------------------------------##

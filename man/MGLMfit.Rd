@@ -20,33 +20,33 @@ DMD.NegMN.fit(data, init, weight, epsilon=1e-8, maxiters=150, display=FALSE)
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{data}{
-a data frame or matrix containing the count data. 
+A data frame or matrix containing the count data. 
 	Rows of the matrix represent observations and columns are the categories. 
 	Rows and columns of all zeros are automatically removed.
 }
   \item{dist}{
-a description of the distribution to fit.  See \code{\link{dist}} for details.
+A description of the distribution to fit. Choose from \code{"MN"}, \code{"DM"}, \code{"GDM"}, \code{"NegMN"}.  See \code{\link{dist}} for details.
 }
   \item{weight}{
-an optional vector of weights assigned to each row of the data. 
+An optional vector of weights assigned to each row of the data. 
 	Should be Null or a numeric vector with the length equal to
 	the number of rows of \code{data}.
 	If \code{weight=NULL}, equal weights of all ones will be assigned.
 }
   \item{init}{
-an optional vector of initial value of the parameter estimates.
+An optional vector of initial value of the parameter estimates.
 	Should have the same dimension as the estimated parameters. See \code{\link{dist}} for
 	details.
 }
   \item{epsilon}{
-an optional numeric controlling the stopping criterion. The algorithm terminates when the relative change in the log-likelihoods of two successive iterates is less than \code{epsilon}. The default value is \code{epsilon=1e-8}.
+An optional numeric controlling the stopping criterion. The algorithm terminates when the relative change in the log-likelihoods of two successive iterates is less than \code{epsilon}. The default value is \code{epsilon=1e-8}.
 }
   \item{maxiters}{
-an optional number controlling the maximum number of iterations. The default
+An optional number controlling the maximum number of iterations. The default
 value is \code{maxiters=150}.
 }
   \item{display}{
-an optional logical variable controlling the display of iterations. The default
+An optional logical variable controlling the display of iterations. The default
 value is FALSE.
 }
 }
@@ -56,19 +56,19 @@ See \code{\link{dist}} for details about model parameterization.
 \value{
 Returns an object of class \code{"MGLMfit"}.  An object of class \code{"MGLMfit"}
 is a list containing at least the following components: 
-\item{estimate}{the vector of the distribution prameter estimates.}
-\item{SE}{the vector of standard errors of the estimates.}
-\item{vcov}{the variance-covariance matrix of the estimates.}
-\item{logL}{the loglikelihood value.}
-\item{iter}{the number of iterations used.}
+\item{estimate}{The vector of the distribution prameter estimates.}
+\item{SE}{The vector of standard errors of the estimates.}
+\item{vcov}{The variance-covariance matrix of the estimates.}
+\item{logL}{The loglikelihood value.}
+\item{iter}{The number of iterations used.}
 \item{BIC}{Bayesian information criterion.}
 \item{AIC}{Akaike information criterion.}
-\item{distribution}{the distribution fitted.}
-\item{LRT}{when \code{dist="DM"} or \code{"GDM"}, it is the likelihood ratio test statistic for
+\item{distribution}{The distribution fitted.}
+\item{LRT}{When \code{dist="DM"} or \code{"GDM"}, it is the likelihood ratio test statistic for
 comparing the current model to the multinomial model.  No
 LRT provided when \code{dist="NegMN"}.}
-\item{LRTpvalue}{the likelihood ratio test P value.}
-\item{DoF}{the degrees of freedom of the model.}
+\item{LRTpvalue}{The likelihood ratio test P value.}
+\item{DoF}{The degrees of freedom of the model.}
 }
 \author{
 Yiwen Zhang and Hua Zhou

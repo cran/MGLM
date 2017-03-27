@@ -6,7 +6,7 @@
 ## Generate multinomial data 
 ##============================================================##
 
-rmn <- function(size, alpha, n) {
+rmn <- function(n, size, alpha) {
     ## alpha can be a vector or a matrix n is optional size can be a scalar;or a
     ## vector; seed is optional
     
@@ -59,7 +59,7 @@ rmn <- function(size, alpha, n) {
 ## Generate dirichlet multinomial data
 ##============================================================##
 
-rdirm <- function(size, alpha, n) {
+rdirm <- function(n, size, alpha) {
     ## alpha can be a vector or a matrix n is optional size can be a scalar;or a
     ## vector; seed is optional
     
@@ -121,7 +121,7 @@ rdirm <- function(size, alpha, n) {
 ## Generate GDM data 
 ##============================================================##
 
-rgdirm <- function(size, alpha, beta, n) {
+rgdirm <- function(n, size, alpha, beta) {
     
     if (length(alpha) != length(beta)) 
         stop("The size of alpha and beta should match.")
@@ -176,7 +176,7 @@ rgdirm <- function(size, alpha, beta, n) {
 ## Generate NegMN data 
 ##============================================================##
 
-rnegmn <- function(prob, beta, n) {
+rnegmn <- function(n, prob, beta) {
     
     if (is.vector(prob) && missing(n)) {
         stop("When prob is a vector, must give n.")
