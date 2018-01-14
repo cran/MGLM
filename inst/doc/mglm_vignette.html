@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>Distribution fitting</title>
+
+<script type="text/javascript">
+window.onload = function() {
+  var imgs = document.getElementsByTagName('img'), i, img;
+  for (i = 0; i < imgs.length; i++) {
+    img = imgs[i];
+    // center an image if it is the only element of its parent
+    if (img.parentElement.childElementCount === 1)
+      img.parentElement.style.textAlign = 'center';
+  }
+};
+</script>
+
+<!-- Styles for R syntax highlighter -->
+<style type="text/css">
+   pre .operator,
+   pre .paren {
+     color: rgb(104, 118, 135)
+   }
+
+   pre .literal {
+     color: #990073
+   }
+
+   pre .number {
+     color: #099;
+   }
+
+   pre .comment {
+     color: #998;
+     font-style: italic
+   }
+
+   pre .keyword {
+     color: #900;
+     font-weight: bold
+   }
+
+   pre .identifier {
+     color: rgb(0, 0, 0);
+   }
+
+   pre .string {
+     color: #d14;
+   }
+</style>
+
+<!-- R syntax highlighter -->
+<script type="text/javascript">
+var hljs=new function(){function m(p){return p.replace(/&/gm,"&amp;").replace(/</gm,"&lt;")}function f(r,q,p){return RegExp(q,"m"+(r.cI?"i":"")+(p?"g":""))}function b(r){for(var p=0;p<r.childNodes.length;p++){var q=r.childNodes[p];if(q.nodeName=="CODE"){return q}if(!(q.nodeType==3&&q.nodeValue.match(/\s+/))){break}}}function h(t,s){var p="";for(var r=0;r<t.childNodes.length;r++){if(t.childNodes[r].nodeType==3){var q=t.childNodes[r].nodeValue;if(s){q=q.replace(/\n/g,"")}p+=q}else{if(t.childNodes[r].nodeName=="BR"){p+="\n"}else{p+=h(t.childNodes[r])}}}if(/MSIE [678]/.test(navigator.userAgent)){p=p.replace(/\r/g,"\n")}return p}function a(s){var r=s.className.split(/\s+/);r=r.concat(s.parentNode.className.split(/\s+/));for(var q=0;q<r.length;q++){var p=r[q].replace(/^language-/,"");if(e[p]){return p}}}function c(q){var p=[];(function(s,t){for(var r=0;r<s.childNodes.length;r++){if(s.childNodes[r].nodeType==3){t+=s.childNodes[r].nodeValue.length}else{if(s.childNodes[r].nodeName=="BR"){t+=1}else{if(s.childNodes[r].nodeType==1){p.push({event:"start",offset:t,node:s.childNodes[r]});t=arguments.callee(s.childNodes[r],t);p.push({event:"stop",offset:t,node:s.childNodes[r]})}}}}return t})(q,0);return p}function k(y,w,x){var q=0;var z="";var s=[];function u(){if(y.length&&w.length){if(y[0].offset!=w[0].offset){return(y[0].offset<w[0].offset)?y:w}else{return w[0].event=="start"?y:w}}else{return y.length?y:w}}function t(D){var A="<"+D.nodeName.toLowerCase();for(var B=0;B<D.attributes.length;B++){var C=D.attributes[B];A+=" "+C.nodeName.toLowerCase();if(C.value!==undefined&&C.value!==false&&C.value!==null){A+='="'+m(C.value)+'"'}}return A+">"}while(y.length||w.length){var v=u().splice(0,1)[0];z+=m(x.substr(q,v.offset-q));q=v.offset;if(v.event=="start"){z+=t(v.node);s.push(v.node)}else{if(v.event=="stop"){var p,r=s.length;do{r--;p=s[r];z+=("</"+p.nodeName.toLowerCase()+">")}while(p!=v.node);s.splice(r,1);while(r<s.length){z+=t(s[r]);r++}}}}return z+m(x.substr(q))}function j(){function q(x,y,v){if(x.compiled){return}var u;var s=[];if(x.k){x.lR=f(y,x.l||hljs.IR,true);for(var w in x.k){if(!x.k.hasOwnProperty(w)){continue}if(x.k[w] instanceof Object){u=x.k[w]}else{u=x.k;w="keyword"}for(var r in u){if(!u.hasOwnProperty(r)){continue}x.k[r]=[w,u[r]];s.push(r)}}}if(!v){if(x.bWK){x.b="\\b("+s.join("|")+")\\s"}x.bR=f(y,x.b?x.b:"\\B|\\b");if(!x.e&&!x.eW){x.e="\\B|\\b"}if(x.e){x.eR=f(y,x.e)}}if(x.i){x.iR=f(y,x.i)}if(x.r===undefined){x.r=1}if(!x.c){x.c=[]}x.compiled=true;for(var t=0;t<x.c.length;t++){if(x.c[t]=="self"){x.c[t]=x}q(x.c[t],y,false)}if(x.starts){q(x.starts,y,false)}}for(var p in e){if(!e.hasOwnProperty(p)){continue}q(e[p].dM,e[p],true)}}function d(B,C){if(!j.called){j();j.called=true}function q(r,M){for(var L=0;L<M.c.length;L++){if((M.c[L].bR.exec(r)||[null])[0]==r){return M.c[L]}}}function v(L,r){if(D[L].e&&D[L].eR.test(r)){return 1}if(D[L].eW){var M=v(L-1,r);return M?M+1:0}return 0}function w(r,L){return L.i&&L.iR.test(r)}function K(N,O){var M=[];for(var L=0;L<N.c.length;L++){M.push(N.c[L].b)}var r=D.length-1;do{if(D[r].e){M.push(D[r].e)}r--}while(D[r+1].eW);if(N.i){M.push(N.i)}return f(O,M.join("|"),true)}function p(M,L){var N=D[D.length-1];if(!N.t){N.t=K(N,E)}N.t.lastIndex=L;var r=N.t.exec(M);return r?[M.substr(L,r.index-L),r[0],false]:[M.substr(L),"",true]}function z(N,r){var L=E.cI?r[0].toLowerCase():r[0];var M=N.k[L];if(M&&M instanceof Array){return M}return false}function F(L,P){L=m(L);if(!P.k){return L}var r="";var O=0;P.lR.lastIndex=0;var M=P.lR.exec(L);while(M){r+=L.substr(O,M.index-O);var N=z(P,M);if(N){x+=N[1];r+='<span class="'+N[0]+'">'+M[0]+"</span>"}else{r+=M[0]}O=P.lR.lastIndex;M=P.lR.exec(L)}return r+L.substr(O,L.length-O)}function J(L,M){if(M.sL&&e[M.sL]){var r=d(M.sL,L);x+=r.keyword_count;return r.value}else{return F(L,M)}}function I(M,r){var L=M.cN?'<span class="'+M.cN+'">':"";if(M.rB){y+=L;M.buffer=""}else{if(M.eB){y+=m(r)+L;M.buffer=""}else{y+=L;M.buffer=r}}D.push(M);A+=M.r}function G(N,M,Q){var R=D[D.length-1];if(Q){y+=J(R.buffer+N,R);return false}var P=q(M,R);if(P){y+=J(R.buffer+N,R);I(P,M);return P.rB}var L=v(D.length-1,M);if(L){var O=R.cN?"</span>":"";if(R.rE){y+=J(R.buffer+N,R)+O}else{if(R.eE){y+=J(R.buffer+N,R)+O+m(M)}else{y+=J(R.buffer+N+M,R)+O}}while(L>1){O=D[D.length-2].cN?"</span>":"";y+=O;L--;D.length--}var r=D[D.length-1];D.length--;D[D.length-1].buffer="";if(r.starts){I(r.starts,"")}return R.rE}if(w(M,R)){throw"Illegal"}}var E=e[B];var D=[E.dM];var A=0;var x=0;var y="";try{var s,u=0;E.dM.buffer="";do{s=p(C,u);var t=G(s[0],s[1],s[2]);u+=s[0].length;if(!t){u+=s[1].length}}while(!s[2]);if(D.length>1){throw"Illegal"}return{r:A,keyword_count:x,value:y}}catch(H){if(H=="Illegal"){return{r:0,keyword_count:0,value:m(C)}}else{throw H}}}function g(t){var p={keyword_count:0,r:0,value:m(t)};var r=p;for(var q in e){if(!e.hasOwnProperty(q)){continue}var s=d(q,t);s.language=q;if(s.keyword_count+s.r>r.keyword_count+r.r){r=s}if(s.keyword_count+s.r>p.keyword_count+p.r){r=p;p=s}}if(r.language){p.second_best=r}return p}function i(r,q,p){if(q){r=r.replace(/^((<[^>]+>|\t)+)/gm,function(t,w,v,u){return w.replace(/\t/g,q)})}if(p){r=r.replace(/\n/g,"<br>")}return r}function n(t,w,r){var x=h(t,r);var v=a(t);var y,s;if(v){y=d(v,x)}else{return}var q=c(t);if(q.length){s=document.createElement("pre");s.innerHTML=y.value;y.value=k(q,c(s),x)}y.value=i(y.value,w,r);var u=t.className;if(!u.match("(\\s|^)(language-)?"+v+"(\\s|$)")){u=u?(u+" "+v):v}if(/MSIE [678]/.test(navigator.userAgent)&&t.tagName=="CODE"&&t.parentNode.tagName=="PRE"){s=t.parentNode;var p=document.createElement("div");p.innerHTML="<pre><code>"+y.value+"</code></pre>";t=p.firstChild.firstChild;p.firstChild.cN=s.cN;s.parentNode.replaceChild(p.firstChild,s)}else{t.innerHTML=y.value}t.className=u;t.result={language:v,kw:y.keyword_count,re:y.r};if(y.second_best){t.second_best={language:y.second_best.language,kw:y.second_best.keyword_count,re:y.second_best.r}}}function o(){if(o.called){return}o.called=true;var r=document.getElementsByTagName("pre");for(var p=0;p<r.length;p++){var q=b(r[p]);if(q){n(q,hljs.tabReplace)}}}function l(){if(window.addEventListener){window.addEventListener("DOMContentLoaded",o,false);window.addEventListener("load",o,false)}else{if(window.attachEvent){window.attachEvent("onload",o)}else{window.onload=o}}}var e={};this.LANGUAGES=e;this.highlight=d;this.highlightAuto=g;this.fixMarkup=i;this.highlightBlock=n;this.initHighlighting=o;this.initHighlightingOnLoad=l;this.IR="[a-zA-Z][a-zA-Z0-9_]*";this.UIR="[a-zA-Z_][a-zA-Z0-9_]*";this.NR="\\b\\d+(\\.\\d+)?";this.CNR="\\b(0[xX][a-fA-F0-9]+|(\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?)";this.BNR="\\b(0b[01]+)";this.RSR="!|!=|!==|%|%=|&|&&|&=|\\*|\\*=|\\+|\\+=|,|\\.|-|-=|/|/=|:|;|<|<<|<<=|<=|=|==|===|>|>=|>>|>>=|>>>|>>>=|\\?|\\[|\\{|\\(|\\^|\\^=|\\||\\|=|\\|\\||~";this.ER="(?![\\s\\S])";this.BE={b:"\\\\.",r:0};this.ASM={cN:"string",b:"'",e:"'",i:"\\n",c:[this.BE],r:0};this.QSM={cN:"string",b:'"',e:'"',i:"\\n",c:[this.BE],r:0};this.CLCM={cN:"comment",b:"//",e:"$"};this.CBLCLM={cN:"comment",b:"/\\*",e:"\\*/"};this.HCM={cN:"comment",b:"#",e:"$"};this.NM={cN:"number",b:this.NR,r:0};this.CNM={cN:"number",b:this.CNR,r:0};this.BNM={cN:"number",b:this.BNR,r:0};this.inherit=function(r,s){var p={};for(var q in r){p[q]=r[q]}if(s){for(var q in s){p[q]=s[q]}}return p}}();hljs.LANGUAGES.cpp=function(){var a={keyword:{"false":1,"int":1,"float":1,"while":1,"private":1,"char":1,"catch":1,"export":1,virtual:1,operator:2,sizeof:2,dynamic_cast:2,typedef:2,const_cast:2,"const":1,struct:1,"for":1,static_cast:2,union:1,namespace:1,unsigned:1,"long":1,"throw":1,"volatile":2,"static":1,"protected":1,bool:1,template:1,mutable:1,"if":1,"public":1,friend:2,"do":1,"return":1,"goto":1,auto:1,"void":2,"enum":1,"else":1,"break":1,"new":1,extern:1,using:1,"true":1,"class":1,asm:1,"case":1,typeid:1,"short":1,reinterpret_cast:2,"default":1,"double":1,register:1,explicit:1,signed:1,typename:1,"try":1,"this":1,"switch":1,"continue":1,wchar_t:1,inline:1,"delete":1,alignof:1,char16_t:1,char32_t:1,constexpr:1,decltype:1,noexcept:1,nullptr:1,static_assert:1,thread_local:1,restrict:1,_Bool:1,complex:1},built_in:{std:1,string:1,cin:1,cout:1,cerr:1,clog:1,stringstream:1,istringstream:1,ostringstream:1,auto_ptr:1,deque:1,list:1,queue:1,stack:1,vector:1,map:1,set:1,bitset:1,multiset:1,multimap:1,unordered_set:1,unordered_map:1,unordered_multiset:1,unordered_multimap:1,array:1,shared_ptr:1}};return{dM:{k:a,i:"</",c:[hljs.CLCM,hljs.CBLCLM,hljs.QSM,{cN:"string",b:"'\\\\?.",e:"'",i:"."},{cN:"number",b:"\\b(\\d+(\\.\\d*)?|\\.\\d+)(u|U|l|L|ul|UL|f|F)"},hljs.CNM,{cN:"preprocessor",b:"#",e:"$"},{cN:"stl_container",b:"\\b(deque|list|queue|stack|vector|map|set|bitset|multiset|multimap|unordered_map|unordered_set|unordered_multiset|unordered_multimap|array)\\s*<",e:">",k:a,r:10,c:["self"]}]}}}();hljs.LANGUAGES.r={dM:{c:[hljs.HCM,{cN:"number",b:"\\b0[xX][0-9a-fA-F]+[Li]?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+(?:[eE][+\\-]?\\d*)?L\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+\\.(?!\\d)(?:i\\b)?",e:hljs.IMMEDIATE_RE,r:1},{cN:"number",b:"\\b\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\.\\d+(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"keyword",b:"(?:tryCatch|library|setGeneric|setGroupGeneric)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\.",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\d+(?![\\w.])",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\b(?:function)",e:hljs.IMMEDIATE_RE,r:2},{cN:"keyword",b:"(?:if|in|break|next|repeat|else|for|return|switch|while|try|stop|warning|require|attach|detach|source|setMethod|setClass)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"literal",b:"(?:NA|NA_integer_|NA_real_|NA_character_|NA_complex_)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"literal",b:"(?:NULL|TRUE|FALSE|T|F|Inf|NaN)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"identifier",b:"[a-zA-Z.][a-zA-Z0-9._]*\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"<\\-(?!\\s*\\d)",e:hljs.IMMEDIATE_RE,r:2},{cN:"operator",b:"\\->|<\\-",e:hljs.IMMEDIATE_RE,r:1},{cN:"operator",b:"%%|~",e:hljs.IMMEDIATE_RE},{cN:"operator",b:">=|<=|==|!=|\\|\\||&&|=|\\+|\\-|\\*|/|\\^|>|<|!|&|\\||\\$|:",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"%",e:"%",i:"\\n",r:1},{cN:"identifier",b:"`",e:"`",r:0},{cN:"string",b:'"',e:'"',c:[hljs.BE],r:0},{cN:"string",b:"'",e:"'",c:[hljs.BE],r:0},{cN:"paren",b:"[[({\\])}]",e:hljs.IMMEDIATE_RE,r:0}]}};
+hljs.initHighlightingOnLoad();
+</script>
+
+<!-- MathJax scripts -->
+<script type="text/javascript" src="https://cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+pre {
+  overflow-x: auto;
+}
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<p>The analysis of multivariate count data arises in numerous fields including genomics, image analysis, text mining, and sport analytics.  The multinomial logit model is limiting due to its restrictive mean-variance structure. Moreover, it assumes that counts of different categories are negatively correlated.  Models that allow over-dispersion and possess more flexible positive and/or negative correlation structures offer more realism.  We implement four models in the R package <code>MGLM</code>: multinomial logit (MN), Dirichlet multinomial (DM), generalized Dirichlet multinomial (GDM), and negative mutinomial (NegMN). Distribution fitting, regression, hypothesis testing, and variable selection are treated in a unified framework. The multivariate count data we analyze here has \(d\) categories.</p>
+
+<h2>Distribution fitting</h2>
+
+<p>The function <code>MGLMfit</code> fits various multivariate discrete distributions and outputs a list with the maximum likelihood estimate (MLE) and relevant statistics.  </p>
+
+<p>When fitting distributions, i.e. no covariates involved, MN is a sub-model of DM, and DM is a sub-model of GDM. &lt;!&ndash;%We can perform the likelihood ratio test (LRT) to make comparison between the three models.&ndash;&gt; 
+<code>MGLMfit</code> outputs the p-value of the likelihood ratio test (LRT) for comparing the fitted model with the most commonly used multinomial model.  The NegMN model does not have a nesting relationship with any of the other three models. Therefore, no LRT is performed when fitting a NegMN distribution.</p>
+
+<h3>Multinomial (MN)</h3>
+
+<p>We first generate data from a multinomial distribution. Note the multinomial parameter (must be positive) supplied to the <code>rmn</code> function is automatically scaled to be a probability vector.</p>
+
+<pre><code class="r">library(MGLM)
+set.seed(123)
+n &lt;- 200
+d &lt;- 4
+alpha &lt;- rep(1, d)
+m &lt;- 50
+Y &lt;- rmn(n, m, alpha)
+</code></pre>
+
+<p>Multinomial distribution fitting, although trivial, is implemented. </p>
+
+<pre><code class="r">mnFit &lt;- MGLMfit(Y, dist=&quot;MN&quot;)
+show(mnFit)
+</code></pre>
+
+<pre><code>##         estimate       SE
+## alpha_1   0.2568 0.030891
+## alpha_2   0.2467 0.030483
+## alpha_3   0.2451 0.030416
+## alpha_4   0.2514 0.030676
+## 
+## Distribution: Multinomial
+## Log-likelihood: -1457.788
+## BIC: 2931.471
+## AIC: 2921.576
+## LRT test p value: 
+## Iterations:
+</code></pre>
+
+<p>As a comparison, we fit the DM distribution to the same data set.  The results indicate that using a more complex model on the multinomial data shows no advantage.</p>
+
+<pre><code class="r">compareFit &lt;- MGLMfit(Y, dist=&quot;DM&quot;)
+show(compareFit)
+</code></pre>
+
+<pre><code>##         estimate        SE
+## alpha_1  5270901 786946676
+## alpha_2  5063596 755995891
+## alpha_3  5030755 751092797
+## alpha_4  5160065 770398732
+## 
+## Distribution: Dirichlet Multinomial
+## Log-likelihood: -1457.788
+## BIC: 2936.769
+## AIC: 2923.576
+## LRT test p value: 1.000
+## Iterations: 35
+</code></pre>
+
+<p>Both the DM parameter estimates and their standard errors are large, indicating possible overfitting by the DM model. This is confirmed by the fact that the p-value of the LRT for comparing MN to DM is close to 1.</p>
+
+<h3>Dirichlet-multinomial (DM)</h3>
+
+<p>DM is a Dirichlet mixture of multinomials and allows over-dispersion. Similar to the MN model, it assumes that the counts of any two different categories are negatively correlated. We generate the data from the DM model and fit the DM distribution.</p>
+
+<pre><code class="r">set.seed(123)
+n &lt;- 200
+d &lt;- 4
+alpha &lt;- rep(1, d)
+m &lt;- 50
+Y &lt;- rdirmn(n, m, alpha)
+</code></pre>
+
+<pre><code class="r">dmFit &lt;- MGLMfit(Y, dist=&quot;DM&quot;)
+show(dmFit)
+</code></pre>
+
+<pre><code>##         estimate       SE
+## alpha_1 0.976670 0.076589
+## alpha_2 0.995142 0.079255
+## alpha_3 1.006120 0.080033
+## alpha_4 0.904500 0.072547
+## 
+## Distribution: Dirichlet Multinomial
+## Log-likelihood: -2011.225
+## BIC: 4043.644
+## AIC: 4030.451
+## LRT test p value: &lt;0.0001
+## Iterations: 4
+</code></pre>
+
+<p>The estimate is very close to the true value with small standard errors. The LRT shows that the DM model is significantly better than the MN model.</p>
+
+<h3>Generalized Dirichlet-multinomial (GDM)</h3>
+
+<p>GDM model uses \(d-2\) more parameters than the DM model and allows both positive and negative correlations among different categories. DM is a sub-model of GDM. Here we fit a GDM model to the above DM sample.</p>
+
+<pre><code class="r">gdmFit &lt;- MGLMfit(Y, dist=&quot;GDM&quot;)
+show(gdmFit)
+</code></pre>
+
+<pre><code>##         estimate       SE
+## alpha_1 1.158474 0.123403
+## alpha_2 0.993293 0.437239
+## alpha_3 0.839967 0.106374
+## beta_1  3.706863 0.226414
+## beta_2  1.979389 0.094645
+## beta_3  0.759641 0.084403
+## 
+## Distribution: Generalized Dirichlet Multinomial
+## Log-likelihood: -2007.559
+## BIC: 4046.907
+## AIC: 4027.117
+## LRT test p value: &lt;0.0001
+## Iterations: 27
+</code></pre>
+
+<p>GDM yields a slightly larger log-likelihood value but a larger BIC, suggesting DM as a preferred model. p-value indiciates GDM is still significantly better thant the MN model. &lt;!&ndash;%This is confirmed by a formal LRT
+% &lt;<cache=TRUE>&gt;=
+% lrtGdmvsdm &lt;- pchisq(2*(gdmFit$loglikelihood - dmFit$loglikelihood), d-2, lower.tail=FALSE)
+% show(lrtGdmvsdm)
+% @&ndash;&gt;
+Now we simulate data from GDM and fit the GDM distribution.</p>
+
+<pre><code class="r">set.seed(124)
+n &lt;- 200
+d &lt;- 4
+alpha &lt;- rep(1, d-1)
+beta &lt;- rep(1, d-1)
+m &lt;- 50
+Y &lt;- rgdirmn(n, m, alpha, beta)
+gdmFit &lt;- MGLMfit(Y, dist=&quot;GDM&quot;)
+gdmFit
+</code></pre>
+
+<pre><code>##         estimate       SE
+## alpha_1 1.019835 0.103480
+## alpha_2 0.826125 0.109316
+## alpha_3 0.774387 0.092568
+## beta_1  1.062112 0.095566
+## beta_2  0.846216 0.108725
+## beta_3  0.924559 0.135008
+## 
+## Distribution: Generalized Dirichlet Multinomial
+## Log-likelihood: -1820.616
+## BIC: 3673.021
+## AIC: 3653.231
+## LRT test p value: &lt;0.0001
+## Iterations: 24
+</code></pre>
+
+<h3>Negative multinomial (NegMN)</h3>
+
+<p>NegMN model is a multivariate analog of the negative binomial model. It assumes positive correlation among the counts. The following code generates data from the NegMN model and fit the NegMN distribution,</p>
+
+<pre><code class="r">set.seed(1220)
+n &lt;- 100
+d &lt;- 4
+p &lt;- 5
+prob &lt;- rep(0.2, d)
+beta &lt;- 10
+Y &lt;- rnegmn(n, beta, prob)
+negmnFit &lt;- MGLMfit(Y, dist=&quot;NegMN&quot;)
+show(negmnFit)
+</code></pre>
+
+<pre><code>##      estimate       SE
+## p_1  0.188151 0.009584
+## p_2  0.194311 0.009837
+## p_3  0.191511 0.009722
+## p_4  0.196177 0.009914
+## phi 12.313935 2.266097
+## 
+## Distribution: Negative Multinomial
+## Log-likelihood: -1104.579
+## BIC: 2232.184
+## AIC: 2219.158
+## LRT test p value: 
+## Iterations: 4
+</code></pre>
+
+<p>Because MN is not a sub-model of NegMN, no LRT is performed here.</p>
+
+<h2>Regression</h2>
+
+<p>In regression, the \(n \times p\) covariate matrix \(X\) is similar to that used in the <code>glm</code> function. The response should be a \(n \times d\) count matrix. Unlike estimating a parameter vector \(\beta\) in GLM, we need to estimate a parameter matrix \(B\) when the responses are multivariate.  The dimension of the parameter matrix depends on the model: </p>
+
+<ul>
+<li>MN:     \(p\times (d-1)\)</li>
+<li>DM:     \(p\times d\)</li>
+<li>GDM:    \(p\times 2(d-1)\)</li>
+<li>NegMN:  \(p\times (d+1)\)</li>
+</ul>
+
+<p>The GDM model provides the most flexibility, but also requires most parameters.  In the function <code>MGLMreg</code> for regression, the option <code>dist=&quot;MN&quot;</code>, <code>&quot;DM&quot;</code>, <code>&quot;GDM&quot;</code> or <code>&quot;NegMN&quot;</code> specifies the model. </p>
+
+<p>The rows \(B_{j,\cdot}\) of the parameter matrix correspond to covariates. By default, the function output the Wald test statistics and p-values for testing \(H_0: B_{j,\cdot}={\bf 0}\) vs \(H_a: B_{j, \cdot}\neq {\bf 0}\). If specifying the option <code>LRT=TRUE</code>, the function also outputs LRT statistics and p-values.</p>
+
+<p>Next, we demonstrate that model mis-specification results in failure of hypothesis testing.  We simulate response data from the GDM model. Covariates \(X_1\) and \(X_2\) have no effect while \(X_3\), \(X_4\), \(X_5\) have different effect sizes. </p>
+
+<pre><code class="r">set.seed(1234)
+n &lt;- 200
+p &lt;- 5
+d &lt;- 4
+X &lt;- matrix(runif(p * n), n, p)
+alpha &lt;- matrix(c(0.6, 0.8, 1), p, d - 1, byrow=TRUE)
+alpha[c(1, 2),] &lt;- 0
+Alpha &lt;- exp(X %*% alpha)
+beta &lt;- matrix(c(1.2, 1, 0.6), p, d - 1, byrow=TRUE)
+beta[c(1, 2),] &lt;- 0
+Beta &lt;- exp(X %*% beta)
+m &lt;- runif(n, min=0, max=25) + 25
+Y &lt;- rgdirmn(n, m, Alpha, Beta)
+</code></pre>
+
+<p>We fit various regression models and test significance of covariates.</p>
+
+<h3>Multinomial regression</h3>
+
+<pre><code class="r">mnReg &lt;- MGLMreg(Y~0+X, dist=&quot;MN&quot;)
+show(mnReg)
+</code></pre>
+
+<pre><code>## Call: MGLMreg(formula = Y ~ 0 + X, dist = &quot;MN&quot;)
+## 
+## Coefficients:
+##          Col_1     Col_2     Col_3
+## [1,]  0.277063 -0.182760 -0.123204
+## [2,]  0.543064  0.422730  0.246523
+## [3,]  0.333252  0.517605  0.221851
+## [4,]  0.356843  0.486722  0.565427
+## [5,] -0.302455  0.192508  0.323713
+## 
+## Hypothesis test: 
+##    wald value    Pr(&gt;wald)
+## X1   24.63244 1.800000e-05
+## X2   21.99680 6.500000e-05
+## X3   23.10908 3.800000e-05
+## X4   25.07475 1.500000e-05
+## X5   49.37327 1.086326e-10
+## 
+## Distribution: Multinomial
+## Log-likelihood: -2194.448
+## BIC: 4468.371
+## AIC: 4418.896
+## Iterations: 5
+</code></pre>
+
+<p>The Wald test shows that all predictors, including the null predictors \(X_1\) and \(X_2\), are significant.</p>
+
+<h3>Dirichlet-multinomial regression</h3>
+
+<pre><code class="r">dmReg &lt;- MGLMreg(Y~0+X, dist=&quot;DM&quot;)
+show(dmReg)
+</code></pre>
+
+<pre><code>## Call: MGLMreg(formula = Y ~ 0 + X, dist = &quot;DM&quot;)
+## 
+## Coefficients:
+##         Col_1     Col_2     Col_3     Col_4
+## [1,] 0.154137 -0.118264 -0.188339 -0.013172
+## [2,] 0.183264  0.142034 -0.183394 -0.333886
+## [3,] 1.143146  1.254828  1.092635  0.811259
+## [4,] 0.392703  0.545421  0.590015  0.131132
+## [5,] 0.226350  0.660108  0.939599  0.487034
+## 
+## Hypothesis test: 
+##    wald value Pr(&gt;wald)
+## X1   3.349794  0.501082
+## X2   7.845339  0.097411
+## X3  25.497386  0.000040
+## X4   8.735121  0.068072
+## X5  23.136042  0.000119
+## 
+## Distribution: Dirichlet Multinomial
+## Log-likelihood: -1683.961
+## BIC: 3473.889
+## AIC: 3407.922
+## Iterations: 7
+</code></pre>
+
+<p>Wald test declares that \(X1\), \(X2\) and \(X4\) have not effects, but \(X3\) and \(X5\) are significant.</p>
+
+<h3>Generalized Dirichlet-multinomial Regression</h3>
+
+<pre><code class="r">gdmReg &lt;- MGLMreg(Y~0+X, dist=&quot;GDM&quot;)
+show(gdmReg)
+</code></pre>
+
+<pre><code>## Call: MGLMreg(formula = Y ~ 0 + X, dist = &quot;GDM&quot;)
+## 
+## Coefficients:
+##      alpha_Col_2 alpha_Col_1 alpha_Col_3 beta_Col_2 beta_Col_1 beta_Col_3
+## [1,]   -0.283917    0.190503    0.315706  -0.400203   0.684651   0.467592
+## [2,]   -0.209171    0.395541    0.014426  -0.508254   0.552645  -0.171410
+## [3,]    1.090140    1.243785    1.171786   1.304955   1.537526   0.916033
+## [4,]    0.296819    0.405333    0.809087   0.487838   0.573695   0.305889
+## [5,]    0.601841    0.030123    1.281219   1.430931   0.260197   0.853498
+## 
+## Hypothesis test: 
+##    wald value    Pr(&gt;wald)
+## X1   9.424379 1.510800e-01
+## X2   4.865683 5.611520e-01
+## X3  26.828718 1.560000e-04
+## X4  12.607034 4.971800e-02
+## X5  38.637877 8.427803e-07
+## 
+## Distribution: Generalized Dirichlet Multinomial
+## Log-likelihood: -1676.399
+## BIC: 3511.748
+## AIC: 3412.798
+## Iterations: 21
+</code></pre>
+
+<p>When using the correct model GDM, the Wald test is able to differentiate the null effects from the significant ones. GDM regression yields the highest log-likelihood and smallest BIC.</p>
+
+<h3>Negative multinomial regression</h3>
+
+<pre><code class="r">negReg &lt;- MGLMreg(Y~0+X, dist=&quot;NegMN&quot;, regBeta=FALSE)
+show(negReg)
+</code></pre>
+
+<pre><code>## Call: MGLMreg(formula = Y ~ 0 + X, dist = &quot;NegMN&quot;, regBeta = FALSE)
+## 
+## Coefficients:
+## $alpha
+##        Col_1     Col_2     Col_3     Col_4
+## X1  0.243606 -0.216368 -0.156525 -0.031371
+## X2  0.061896 -0.055885 -0.232635 -0.479780
+## X3 -0.160914  0.022688 -0.271238 -0.495127
+## X4 -0.176181 -0.043828  0.034781 -0.530126
+## X5 -0.607974 -0.115829  0.012937 -0.315857
+## 
+## $phi
+##      phi 
+## 13.77531 
+## 
+## 
+## Hypothesis test: 
+##    wald value    Pr(&gt;wald)
+## X1   24.99903 5.000000e-05
+## X2   24.90077 5.300000e-05
+## X3   29.32830 7.000000e-06
+## X4   28.18693 1.100000e-05
+## X5   60.50179 2.275444e-12
+## 
+## Distribution: Negative Multinomial
+## Log-likelihood: -2908.896
+## BIC: 5929.056
+## AIC: 5859.792
+## Iterations: 15
+</code></pre>
+
+<p>Again, the Wald test declares all predictors to be significant. </p>
+
+<!--%' The plot of fitted versis true values can be made easily with 
+%' <<label=fit1, echo=TRUE, pdf=FALSE, results=hide,  include=TRUE>>=
+%&lsquo; plot(gdmReg, facet=TRUE, free=TRUE)
+%&rsquo; @
+% Faceting display is an option. The free arguement controls whether to use shared scale across all facets.&ndash;>
+
+<h3>Prediction</h3>
+
+<p>We can use the fitted model for prediction. The <code>prediction</code> function outputs the probabilities of each category.  This helps answer questions such as whether certain features increase the probability of observing category \(j\). Take the fitted GDM model as an example:</p>
+
+<pre><code class="r">newX &lt;- matrix(runif(1*p), 1, p)
+pred &lt;- predict(gdmReg, newX)
+pred
+</code></pre>
+
+<pre><code>##          Col_1     Col_2     Col_3     Col_4
+## [1,] 0.3218286 0.2235816 0.3304694 0.1241204
+</code></pre>
+
+<h2>Sparse regression</h2>
+
+<p>Regularization is an important tool for model selection and improving the risk property of the estimates.  In the package, we implemented three types of penalties on the paramter matrix \(B\):</p>
+
+<ul>
+<li>selection by entries</li>
+<li>selection by rows/predictors</li>
+<li>selection by rank</li>
+</ul>
+
+<p>The function <code>MGLMtune</code> finds the optimal tuning parameter with the smallest BIC and outputs the estimate using the chosen tuning parameter.  The output from <code>MGLMtune</code> is a list containing the solution path and the final estimate. Users can either provide a vector of tuning parameters with option <code>lambdas</code> or specify the number of grid points via option <code>ngridpt</code> and let the function decide the default tuning parameters. The function <code>MGLMsparsereg</code> computes the regularized estimate at a given tuning paramter value <code>lambda</code>.</p>
+
+<p>We generate the data from the DM model, with row sparsity, and show how each penalty type works. </p>
+
+<pre><code class="r">set.seed(118)
+n &lt;- 100
+p &lt;- 10
+d &lt;- 5
+m &lt;- rbinom(n, 200, 0.8)
+X &lt;- matrix(rnorm(n * p), n, p)
+alpha &lt;- matrix(0, p, d)
+alpha[c(1, 3, 5), ] &lt;- 1
+Alpha &lt;- exp(X %*% alpha)
+Y &lt;- rdirmn(size=m, alpha=Alpha)
+</code></pre>
+
+<h3>Select by entries</h3>
+
+<pre><code class="r">sweep &lt;- MGLMtune(Y ~ 0 + X, dist=&quot;DM&quot;, penalty=&quot;sweep&quot;, ngridpt=30)
+show(sweep)
+</code></pre>
+
+<pre><code>## Call: MGLMtune(formula = Y ~ 0 + X, dist = &quot;DM&quot;, penalty = &quot;sweep&quot;, 
+##     ngridpt = 30)
+## 
+## Distribution: Dirichlet Multinomial
+## Log-likelihood: -1461.992
+## BIC: 3066.744
+## AIC: 2985.984
+## Degrees of freedom: 31
+## Lambda: 4.858822
+## Number of grid points: 30
+</code></pre>
+
+<!--%' <<label=sweeppath, echo=TRUE, pdf=FALSE, results=hide,  include=TRUE>>=
+%&lsquo; plot(sweep)
+%&rsquo; @
+%&lsquo; 
+%&rsquo; \begin{figure}
+%&lsquo; \begin{center}
+%&rsquo; \setkeys{Gin}{height=2.70in,width=2.15in}
+%&lsquo; <<fig=TRUE, echo=FALSE>>=
+%&rsquo; <<sweeppath>>
+%&lsquo; @
+%&rsquo; \end{center}
+%&lsquo; \caption{Variable selection by entries}
+%&rsquo; \label{fig:lasso-solpath}
+%&lsquo; \end{figure}&ndash;>
+
+<h3>Select by rows</h3>
+
+<p>Since the rows of the parameter matrix correspond to predictors, selecting by rows performs variable selection at the predictor level. </p>
+
+<pre><code class="r">group &lt;- MGLMtune(Y ~ 0 + X, dist=&quot;DM&quot;, penalty=&quot;group&quot;, ngridpt=30)
+show(group)
+</code></pre>
+
+<pre><code>## Call: MGLMtune(formula = Y ~ 0 + X, dist = &quot;DM&quot;, penalty = &quot;group&quot;, 
+##     ngridpt = 30)
+## 
+## Distribution: Dirichlet Multinomial
+## Log-likelihood: -1485.475
+## BIC: 3079.238
+## AIC: 3017.978
+## Degrees of freedom: 23.51454
+## Lambda: 20.20407
+## Number of grid points: 30
+</code></pre>
+
+<!--%' <<label=grouppath, echo=TRUE,  pdf=FALSE, results=hide, include=TRUE>>=
+%&rsquo; plot(group)
+%&lsquo; @
+%&rsquo; 
+%&lsquo; \begin{figure}
+%&rsquo; \begin{center}
+%&lsquo; \setkeys{Gin}{height=2.70in,width=2.15in}
+%&rsquo; <<fig=TRUE, echo=FALSE>>=
+%&lsquo; <<grouppath>>
+%&rsquo; @
+%&lsquo; \end{center}
+%&rsquo; \caption{Variable selection by groups}
+%&lsquo; \label{fig:group-solpath}
+%&rsquo; \end{figure}&ndash;>
+
+<h3>Select by singular values</h3>
+
+<p>Nuclear norm regularization encourages low rank in the regularized estimate. </p>
+
+<pre><code class="r">nuclear &lt;- MGLMtune(Y ~ 0 + X, dist=&quot;DM&quot;, penalty=&quot;nuclear&quot;, ngridpt=30, warm.start=FALSE)
+show(nuclear)
+</code></pre>
+
+<pre><code>## Call: MGLMtune(formula = Y ~ 0 + X, dist = &quot;DM&quot;, penalty = &quot;nuclear&quot;, 
+##     ngridpt = 30, warm.start = FALSE)
+## 
+## Distribution: Dirichlet Multinomial
+## Log-likelihood: -1492.063
+## BIC: 3070.422
+## AIC: 3021.604
+## Degrees of freedom: 18.7391
+## Lambda: 37.53776
+## Number of grid points: 30
+</code></pre>
+
+<!--%' <<label=nuclearpath, echo=TRUE, pdf=FALSE, results=hide, include=TRUE>>=
+%&lsquo; plot(nuclear)
+%&rsquo; @
+%&lsquo; 
+%&rsquo; 
+%&lsquo; 
+%&rsquo; \begin{figure}
+%&lsquo; \begin{center}
+%&rsquo; \setkeys{Gin}{height=2.70in,width=2.15in}
+%&lsquo; <<fig=TRUE, echo=FALSE>>=
+%&rsquo; <<nuclearpath>>
+%&lsquo; @
+%&rsquo; \end{center}
+%&lsquo; \caption{Variable selection by singular values}
+%&rsquo; \label{fig:nuclear-solpath}
+%&lsquo; \end{figure}&ndash;>
+
+</body>
+
+</html>

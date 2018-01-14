@@ -1,0 +1,278 @@
+---
+title: "MGLM Vignette"
+author: "Yiwen Zhang and Hua Zhou"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::knitr}
+  %\usepackage[utf8]{inputenc}
+---
+
+
+The analysis of multivariate count data arises in numerous fields including genomics, image analysis, text mining, and sport analytics.  The multinomial logit model is limiting due to its restrictive mean-variance structure. Moreover, it assumes that counts of different categories are negatively correlated.  Models that allow over-dispersion and possess more flexible positive and/or negative correlation structures offer more realism.  We implement four models in the R package `MGLM`: multinomial logit (MN), Dirichlet multinomial (DM), generalized Dirichlet multinomial (GDM), and negative mutinomial (NegMN). Distribution fitting, regression, hypothesis testing, and variable selection are treated in a unified framework. The multivariate count data we analyze here has $d$ categories.
+
+## Distribution fitting
+
+The function `MGLMfit` fits various multivariate discrete distributions and outputs a list with the maximum likelihood estimate (MLE) and relevant statistics.  
+
+When fitting distributions, i.e. no covariates involved, MN is a sub-model of DM, and DM is a sub-model of GDM. <!--%We can perform the likelihood ratio test (LRT) to make comparison between the three models.--> 
+`MGLMfit` outputs the p-value of the likelihood ratio test (LRT) for comparing the fitted model with the most commonly used multinomial model.  The NegMN model does not have a nesting relationship with any of the other three models. Therefore, no LRT is performed when fitting a NegMN distribution.
+
+### Multinomial (MN)
+
+We first generate data from a multinomial distribution. Note the multinomial parameter (must be positive) supplied to the `rmn` function is automatically scaled to be a probability vector.
+```{r warning=FALSE, message=FALSE}
+library(MGLM)
+set.seed(123)
+n <- 200
+d <- 4
+alpha <- rep(1, d)
+m <- 50
+Y <- rmn(n, m, alpha)
+```
+Multinomial distribution fitting, although trivial, is implemented. 
+```{r}
+mnFit <- MGLMfit(Y, dist="MN")
+show(mnFit)
+```
+
+As a comparison, we fit the DM distribution to the same data set.  The results indicate that using a more complex model on the multinomial data shows no advantage.
+```{r}
+compareFit <- MGLMfit(Y, dist="DM")
+show(compareFit)
+```
+Both the DM parameter estimates and their standard errors are large, indicating possible overfitting by the DM model. This is confirmed by the fact that the p-value of the LRT for comparing MN to DM is close to 1.
+
+### Dirichlet-multinomial (DM)
+
+DM is a Dirichlet mixture of multinomials and allows over-dispersion. Similar to the MN model, it assumes that the counts of any two different categories are negatively correlated. We generate the data from the DM model and fit the DM distribution.
+```{r warning=FALSE}
+set.seed(123)
+n <- 200
+d <- 4
+alpha <- rep(1, d)
+m <- 50
+Y <- rdirmn(n, m, alpha)
+```
+```{r}
+dmFit <- MGLMfit(Y, dist="DM")
+show(dmFit)
+```
+The estimate is very close to the true value with small standard errors. The LRT shows that the DM model is significantly better than the MN model.
+
+### Generalized Dirichlet-multinomial (GDM)
+
+GDM model uses $d-2$ more parameters than the DM model and allows both positive and negative correlations among different categories. DM is a sub-model of GDM. Here we fit a GDM model to the above DM sample.
+```{r}
+gdmFit <- MGLMfit(Y, dist="GDM")
+show(gdmFit)
+```
+GDM yields a slightly larger log-likelihood value but a larger BIC, suggesting DM as a preferred model. p-value indiciates GDM is still significantly better thant the MN model. <!--%This is confirmed by a formal LRT
+% <<cache=TRUE>>=
+% lrtGdmvsdm <- pchisq(2*(gdmFit$loglikelihood - dmFit$loglikelihood), d-2, lower.tail=FALSE)
+% show(lrtGdmvsdm)
+% @-->
+Now we simulate data from GDM and fit the GDM distribution.
+```{r warning=FALSE}
+set.seed(124)
+n <- 200
+d <- 4
+alpha <- rep(1, d-1)
+beta <- rep(1, d-1)
+m <- 50
+Y <- rgdirmn(n, m, alpha, beta)
+gdmFit <- MGLMfit(Y, dist="GDM")
+gdmFit
+```
+
+### Negative multinomial (NegMN)
+
+NegMN model is a multivariate analog of the negative binomial model. It assumes positive correlation among the counts. The following code generates data from the NegMN model and fit the NegMN distribution,
+```{r}
+set.seed(1220)
+n <- 100
+d <- 4
+p <- 5
+prob <- rep(0.2, d)
+beta <- 10
+Y <- rnegmn(n, beta, prob)
+negmnFit <- MGLMfit(Y, dist="NegMN")
+show(negmnFit)
+```
+Because MN is not a sub-model of NegMN, no LRT is performed here.
+
+## Regression
+
+In regression, the $n \times p$ covariate matrix $X$ is similar to that used in the `glm` function. The response should be a $n \times d$ count matrix. Unlike estimating a parameter vector $\beta$ in GLM, we need to estimate a parameter matrix $B$ when the responses are multivariate.  The dimension of the parameter matrix depends on the model: 
+  
+  * MN:     $p\times (d-1)$
+  * DM:     $p\times d$
+  * GDM:    $p\times 2(d-1)$
+  * NegMN:  $p\times (d+1)$
+
+The GDM model provides the most flexibility, but also requires most parameters.  In the function `MGLMreg` for regression, the option `dist="MN"`, `"DM"`, `"GDM"` or `"NegMN"` specifies the model. 
+
+The rows $B_{j,\cdot}$ of the parameter matrix correspond to covariates. By default, the function output the Wald test statistics and p-values for testing $H_0: B_{j,\cdot}={\bf 0}$ vs $H_a: B_{j, \cdot}\neq {\bf 0}$. If specifying the option `LRT=TRUE`, the function also outputs LRT statistics and p-values.
+
+Next, we demonstrate that model mis-specification results in failure of hypothesis testing.  We simulate response data from the GDM model. Covariates $X_1$ and $X_2$ have no effect while $X_3$, $X_4$, $X_5$ have different effect sizes. 
+```{r}
+set.seed(1234)
+n <- 200
+p <- 5
+d <- 4
+X <- matrix(runif(p * n), n, p)
+alpha <- matrix(c(0.6, 0.8, 1), p, d - 1, byrow=TRUE)
+alpha[c(1, 2),] <- 0
+Alpha <- exp(X %*% alpha)
+beta <- matrix(c(1.2, 1, 0.6), p, d - 1, byrow=TRUE)
+beta[c(1, 2),] <- 0
+Beta <- exp(X %*% beta)
+m <- runif(n, min=0, max=25) + 25
+Y <- rgdirmn(n, m, Alpha, Beta)
+```
+We fit various regression models and test significance of covariates.
+
+### Multinomial regression
+
+```{r warning=FALSE}
+mnReg <- MGLMreg(Y~0+X, dist="MN")
+show(mnReg)
+```
+The Wald test shows that all predictors, including the null predictors $X_1$ and $X_2$, are significant.
+
+### Dirichlet-multinomial regression
+
+```{r warning=FALSE}
+dmReg <- MGLMreg(Y~0+X, dist="DM")
+show(dmReg)
+```
+Wald test declares that $X1$, $X2$ and $X4$ have not effects, but $X3$ and $X5$ are significant.
+
+### Generalized Dirichlet-multinomial Regression
+
+```{r warning=FALSE}
+gdmReg <- MGLMreg(Y~0+X, dist="GDM")
+show(gdmReg)
+```
+When using the correct model GDM, the Wald test is able to differentiate the null effects from the significant ones. GDM regression yields the highest log-likelihood and smallest BIC.
+
+### Negative multinomial regression
+
+```{r warning=FALSE}
+negReg <- MGLMreg(Y~0+X, dist="NegMN", regBeta=FALSE)
+show(negReg)
+```
+Again, the Wald test declares all predictors to be significant. 
+
+<!--%' The plot of fitted versis true values can be made easily with 
+%' <<label=fit1, echo=TRUE, pdf=FALSE, results=hide,  include=TRUE>>=
+%' plot(gdmReg, facet=TRUE, free=TRUE)
+%' @
+% Faceting display is an option. The free arguement controls whether to use shared scale across all facets.-->
+
+### Prediction
+
+We can use the fitted model for prediction. The `prediction` function outputs the probabilities of each category.  This helps answer questions such as whether certain features increase the probability of observing category $j$. Take the fitted GDM model as an example:
+```{r}
+newX <- matrix(runif(1*p), 1, p)
+pred <- predict(gdmReg, newX)
+pred
+```
+
+## Sparse regression
+
+Regularization is an important tool for model selection and improving the risk property of the estimates.  In the package, we implemented three types of penalties on the paramter matrix $B$:
+
+  * selection by entries
+  * selection by rows/predictors
+  * selection by rank
+
+The function `MGLMtune` finds the optimal tuning parameter with the smallest BIC and outputs the estimate using the chosen tuning parameter.  The output from `MGLMtune` is a list containing the solution path and the final estimate. Users can either provide a vector of tuning parameters with option `lambdas` or specify the number of grid points via option `ngridpt` and let the function decide the default tuning parameters. The function `MGLMsparsereg` computes the regularized estimate at a given tuning paramter value `lambda`.
+
+We generate the data from the DM model, with row sparsity, and show how each penalty type works. 
+
+```{r}
+set.seed(118)
+n <- 100
+p <- 10
+d <- 5
+m <- rbinom(n, 200, 0.8)
+X <- matrix(rnorm(n * p), n, p)
+alpha <- matrix(0, p, d)
+alpha[c(1, 3, 5), ] <- 1
+Alpha <- exp(X %*% alpha)
+Y <- rdirmn(size=m, alpha=Alpha)
+```
+
+### Select by entries
+
+```{r warning=FALSE}
+sweep <- MGLMtune(Y ~ 0 + X, dist="DM", penalty="sweep", ngridpt=30)
+show(sweep)
+```
+
+
+<!--%' <<label=sweeppath, echo=TRUE, pdf=FALSE, results=hide,  include=TRUE>>=
+%' plot(sweep)
+%' @
+%' 
+%' \begin{figure}
+%' \begin{center}
+%' \setkeys{Gin}{height=2.70in,width=2.15in}
+%' <<fig=TRUE, echo=FALSE>>=
+%' <<sweeppath>>
+%' @
+%' \end{center}
+%' \caption{Variable selection by entries}
+%' \label{fig:lasso-solpath}
+%' \end{figure}-->
+
+### Select by rows
+
+Since the rows of the parameter matrix correspond to predictors, selecting by rows performs variable selection at the predictor level. 
+```{r warning=FALSE}
+group <- MGLMtune(Y ~ 0 + X, dist="DM", penalty="group", ngridpt=30)
+show(group)
+```
+
+<!--%' <<label=grouppath, echo=TRUE,  pdf=FALSE, results=hide, include=TRUE>>=
+%' plot(group)
+%' @
+%' 
+%' \begin{figure}
+%' \begin{center}
+%' \setkeys{Gin}{height=2.70in,width=2.15in}
+%' <<fig=TRUE, echo=FALSE>>=
+%' <<grouppath>>
+%' @
+%' \end{center}
+%' \caption{Variable selection by groups}
+%' \label{fig:group-solpath}
+%' \end{figure}-->
+
+
+### Select by singular values
+
+Nuclear norm regularization encourages low rank in the regularized estimate. 
+
+```{r warning=FALSE}
+nuclear <- MGLMtune(Y ~ 0 + X, dist="DM", penalty="nuclear", ngridpt=30, warm.start=FALSE)
+show(nuclear)
+```
+
+<!--%' <<label=nuclearpath, echo=TRUE, pdf=FALSE, results=hide, include=TRUE>>=
+%' plot(nuclear)
+%' @
+%' 
+%' 
+%' 
+%' \begin{figure}
+%' \begin{center}
+%' \setkeys{Gin}{height=2.70in,width=2.15in}
+%' <<fig=TRUE, echo=FALSE>>=
+%' <<nuclearpath>>
+%' @
+%' \end{center}
+%' \caption{Variable selection by singular values}
+%' \label{fig:nuclear-solpath}
+%' \end{figure}-->

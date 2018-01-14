@@ -1,11 +1,16 @@
-## Randomely generate data conforms to multivariate response distribution 
+## Randomly generate data conforms to multivariate response distribution 
 ## Author: Hua Zhou and Yiwen Zhang
 ##============================================================## 
 
 ##============================================================## 
 ## Generate multinomial data 
 ##============================================================##
-
+#' @rdname mn
+#' @param n number of random vectors to generate. 
+#' @param size a scalar or a vector. 
+#' @param alpha a vector or a matrix. 
+#' @import stats 
+#' @export 
 rmn <- function(n, size, alpha) {
     ## alpha can be a vector or a matrix n is optional size can be a scalar;or a
     ## vector; seed is optional
@@ -58,8 +63,15 @@ rmn <- function(n, size, alpha) {
 ##============================================================## 
 ## Generate dirichlet multinomial data
 ##============================================================##
-
-rdirm <- function(n, size, alpha) {
+#' @rdname dirmn
+#' @param  n number of random vectors to generate.  When \code{size} is a scalar and \code{alpha} is a vector, 
+#' must specify \code{n}.  When \code{size} is a vector and \code{alpha} is a matrix, \code{n} is optional.
+#' The default value of \code{n} is the length of \code{size}. If given, \code{n} should be equal to 
+#' the length of \code{size}. 
+#' @param size a number or vector specifying the total number of objects that are put
+#' into d categories in the Dirichlet multinomial distribution. 
+#' @export
+rdirmn <- function(n, size, alpha) {
     ## alpha can be a vector or a matrix n is optional size can be a scalar;or a
     ## vector; seed is optional
     
@@ -120,8 +132,17 @@ rdirm <- function(n, size, alpha) {
 ##============================================================## 
 ## Generate GDM data 
 ##============================================================##
-
-rgdirm <- function(n, size, alpha, beta) {
+#' @rdname gdirmn 
+#' 
+#' @param n the number of random vectors to generate.  When \code{size} is a scalar and \code{alpha} is a vector, 
+#' must specify \code{n}.  When \code{size} is a vector and \code{alpha} is a matrix, \code{n} is optional.
+#' The default value of \code{n} is the length of \code{size}. If given, \code{n} should be equal to 
+#' the length of \code{size}.
+#' @param size a number or vector specifying the total number of objects that are put
+#' into d categories in the generalized Dirichlet multinomial distribution.
+#' 
+#' @export
+rgdirmn <- function(n, size, alpha, beta) {
     
     if (length(alpha) != length(beta)) 
         stop("The size of alpha and beta should match.")
@@ -164,7 +185,7 @@ rgdirm <- function(n, size, alpha, beta) {
     rdm[, 1] = size
     
     for (i in 1:k) {
-        rdm[, c(i, i + 1)] <- rdirm(size = rdm[, i], alpha = cbind(alpha[, i], beta[, 
+        rdm[, c(i, i + 1)] <- rdirmn(size = rdm[, i], alpha = cbind(alpha[, i], beta[, 
             i]), n)
     }
     
@@ -175,8 +196,13 @@ rgdirm <- function(n, size, alpha, beta) {
 ##============================================================## 
 ## Generate NegMN data 
 ##============================================================##
-
-rnegmn <- function(n, prob, beta) {
+#' @rdname negmn 
+#' @param n number of random vectors to generate.  When \code{beta} is a scalar and \code{prob} is a vector, 
+#' must specify \code{n}.  When \code{beta} is a vector and \code{prob} is a matrix, \code{n} is optional.
+#' The default value of \code{n} is the length of \code{beta}. If given, \code{n} should be equal to 
+#' the length of \code{beta}. 
+#' @export
+rnegmn <- function(n, beta, prob) {
     
     if (is.vector(prob) && missing(n)) {
         stop("When prob is a vector, must give n.")

@@ -1,10 +1,8 @@
 \name{internals}
 \alias{dmultn}
-\alias{dneg}
 \alias{glm.private}
 \alias{matrix_threshold}
 \alias{lsq_threshold}
-\alias{rmn}
 \alias{svt}
 \alias{lsq_thresholding}
 \alias{objfun}
@@ -18,11 +16,9 @@ These functions are for internal use only or not yet documented.
 }
 \usage{
 dmultn(X,Y,B1, weight)
-dneg(Y, alpha, beta)
 glm.private(Y, start=NULL, weights, X, family)
 matrix_threshold(X, lambda, penalty)
 lsq_thresholding(b, lambda)
-rmn(n, size, alpha)
 svt(b, lambda)
 objfun(alpha, x, y, d, p)
 objfun.grad(alpha, x, y, d, p)
