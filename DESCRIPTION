@@ -1,11 +1,11 @@
 Package: MGLM
-Version: 0.0.9
-Date: 2017-12-14
+Version: 0.1.0
+Date: 2018-01-20
 Title: Multivariate Response Generalized Linear Models
 Author: Yiwen Zhang <zhangyiwen1015@gmail.com> and Hua Zhou <huazhou@ucla.edu>
 Maintainer: Juhyun Kim <juhkim111@ucla.edu>
 Depends: R (>= 3.0.0)
-Imports: methods, stats, parallel
+Imports: methods, stats, parallel, stats4
 Suggests: ggplot2, plyr, reshape2, knitr
 Description: Provides functions that (1) fit multivariate discrete distributions, (2) generate random numbers from multivariate discrete distributions, and (3) run regression and penalized regression on the multivariate categorical response data.  Implemented models include: multinomial logit model, Dirichlet multinomial model, generalized Dirichlet multinomial model, and negative multinomial model. Making the best of the minorization-maximization (MM) algorithm and Newton-Raphson method, we derive and implement stable and efficient algorithms to find the maximum likelihood estimates. On a multi-core machine, multi-threading is supported.
 VignetteBuilder: knitr
@@ -15,5 +15,5 @@ Repository: CRAN
 License: GPL (>= 2)
 RoxygenNote: 6.0.1.9000
 NeedsCompilation: no
-Packaged: 2018-01-12 17:56:37 UTC; huazhou
-Date/Publication: 2018-01-14 15:31:14 UTC
+Packaged: 2018-01-20 19:45:06 UTC; juhyun-kim
+Date/Publication: 2018-01-21 17:08:37 UTC

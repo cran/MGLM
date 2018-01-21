@@ -206,6 +206,9 @@ ddirmn <- function(Y, alpha) {
 }
 
 
+
+
+
 ## ============================================================## 
 ## Generalized dirchlet multinomial model
 ## ============================================================##
@@ -333,6 +336,7 @@ dgdirmn <- function(Y, alpha, beta) {
 }
 
 
+
 ## ============================================================## 
 ## Negative Multinomial model pdf calculation
 ## ============================================================##
@@ -423,6 +427,9 @@ NULL
 #' @export
 dnegmn <- function(Y, beta, prob = alpha/(rowSums(alpha)+1), alpha = NULL) {
   
+  # TO DO: remove the warning after the next version update (current: 0.1.0)
+  warning(" note the deprecated argument order;\n dnegmn(Y, prob, beta) and dneg(Y, alpha, beta) from MGLM_0.0.8 have been deprecated;\n use dnegmn(Y, beta, prob = alpha/(rowSums(alpha)+1), alpha=NULL) instead", 
+          call. = FALSE)
   
   if (is.null(alpha)) {
     if (is.vector(prob) && length(prob) <= 1) 

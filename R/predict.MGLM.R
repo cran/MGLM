@@ -32,7 +32,7 @@
 #' 
 #' @importFrom stats predict 
 #' @exportMethod predict 
-setMethod("predict", signature(object="MGLMreg", newdata="ANY"), 
+setMethod("predict", signature(object="MGLMreg"), 
           function(object, newdata) {
               beta <- object@coefficients
               d <- ncol(object@data$Y)

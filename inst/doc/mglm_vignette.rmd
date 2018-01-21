@@ -1,6 +1,7 @@
 ---
 title: "MGLM Vignette"
 author: "Yiwen Zhang and Hua Zhou"
+date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Vignette Title}

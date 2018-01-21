@@ -70,7 +70,7 @@ rmn <- function(n, size, alpha) {
 #' the length of \code{size}. 
 #' @param size a number or vector specifying the total number of objects that are put
 #' into d categories in the Dirichlet multinomial distribution. 
-#' @export
+#' @export 
 rdirmn <- function(n, size, alpha) {
     ## alpha can be a vector or a matrix n is optional size can be a scalar;or a
     ## vector; seed is optional
@@ -141,7 +141,7 @@ rdirmn <- function(n, size, alpha) {
 #' @param size a number or vector specifying the total number of objects that are put
 #' into d categories in the generalized Dirichlet multinomial distribution.
 #' 
-#' @export
+#' @export rgdirmn 
 rgdirmn <- function(n, size, alpha, beta) {
     
     if (length(alpha) != length(beta)) 
@@ -191,7 +191,6 @@ rgdirmn <- function(n, size, alpha, beta) {
     
     return(rdm)
 }
-
 
 ##============================================================## 
 ## Generate NegMN data 

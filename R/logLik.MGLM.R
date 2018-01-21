@@ -7,6 +7,7 @@
 #' @description \code{logLik} extracts log-likelihood for classes \code{"MGLMfit"}, 
 #' \code{"MGLMreg"}, \code{"MGLMsparsereg"}. 
 #' @param object an object from which a log-likelihood value can be extracted.
+#' @importFrom stats4 logLik
 #' @return Returns a log-likelihood value of \code{object}.
 #' @examples
 #' library("MGLM")

@@ -48,8 +48,12 @@ setMethod("show", signature = "MGLMreg", function(object) {
     }
     cat("\n")
     cat("Hypothesis test: \n")
-    test <- cbind(object@test[, 1], 
-          sapply(object@test[, 2], function(x) {ifelse(x > 1e-6, round(x, digits), x)}))
+    
+    if(any(object@test[, 2] < 1e-6 & object@test[, 2] > 0)) {
+      test <- cbind(object@test[, 1], object@test[, 2])
+    } else {
+      test <- cbind(object@test[, 1], round(object@test[, 2], digits))
+    }
     colnames(test) <- colnames(object@test)
     print(test)
     cat("\n")

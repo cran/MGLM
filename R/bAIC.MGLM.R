@@ -11,7 +11,7 @@
 #' 
 #' For the class \code{"MGLMtune"}, the function returns AIC 
 #' based on the optimal tuning parameter.
-#'
+#' @importFrom stats4 AIC
 #' @examples 
 #' set.seed(124)
 #' n <- 200
@@ -33,6 +33,7 @@ NULL
 #' 
 #' For the class \code{"MGLMtune"}, the function returns BIC 
 #' based on the optimal tuning parameter.
+#' @importFrom stats4 BIC
 #' @examples 
 #' set.seed(124)
 #' n <- 200
