@@ -1,7 +1,9 @@
 ## All classes & generics 
 
 setClassUnion("numericOrMatrix", c("numeric", "matrix"))
+setClassUnion("numericOrLogical", c("numeric", "logical"))
 setClassUnion("listOrMatrix", c("list", "matrix"))
+
 
 #' @name MGLMfit-class
 #' @aliases MGLMfit-class  
@@ -77,9 +79,9 @@ setClass("MGLMfit", representation(estimate = "vector", SE = "vector", vcov = "m
 #'   the fitted value.
 #' @slot gradient object of class \code{"numeric"} or \code{"matrix"},
 #'  the gradient at the estimated parameter values.
-#' @slot wald.value object of class \code{"numeric"},
+#' @slot wald.value object of class \code{"numeric"} or \code{"logical"},
 #'  the Wald statistics.
-#' @slot wald.p object of class \code{"numeric"},
+#' @slot wald.p object of class \code{"numeric"} or \code{"logical"},
 #'   the p values of Wald test.
 #' @slot Dof object of class \code{"numeric"}, 
 #'   the degrees of freedom. 
@@ -91,8 +93,8 @@ setClass("MGLMfit", representation(estimate = "vector", SE = "vector", vcov = "m
 #' @author Yiwen Zhang and Hua Zhou 
 #' @keywords classes 
 setClass("MGLMreg", representation(coefficients = "listOrMatrix", SE = "listOrMatrix", 
-                                   Hessian = "matrix", gradient = "numericOrMatrix", wald.value = "numeric", 
-                                   wald.p = "numeric", test = "matrix", logL = "numeric", BIC = "numeric", 
+                                   Hessian = "matrix", gradient = "numericOrMatrix", wald.value = "numericOrLogical", 
+                                   wald.p = "numericOrLogical", test = "matrix", logL = "numeric", BIC = "numeric", 
                                    AIC = "numeric", fitted = "matrix", call = "call", iter = "numeric",
                                    distribution = "character", data = "list", Dof = "numeric"))
 

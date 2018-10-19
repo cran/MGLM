@@ -373,6 +373,7 @@ MGLMreg.fit <- function(Y, init = NULL, X, dist, weight = NULL, epsilon = 1e-08,
   ## ----------------------------------------## 
   est$call <- match.call()
   est$data <- list(Y = Y, X = X)
+  est$test
   
   ## ----------------------------------------## 
   ## Set class

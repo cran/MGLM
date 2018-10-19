@@ -1,6 +1,6 @@
 Package: MGLM
-Version: 0.1.0
-Date: 2018-01-20
+Version: 0.2.0
+Date: 2018-10-19
 Title: Multivariate Response Generalized Linear Models
 Author: Yiwen Zhang <zhangyiwen1015@gmail.com> and Hua Zhou <huazhou@ucla.edu>
 Maintainer: Juhyun Kim <juhkim111@ucla.edu>
@@ -15,5 +15,5 @@ Repository: CRAN
 License: GPL (>= 2)
 RoxygenNote: 6.0.1.9000
 NeedsCompilation: no
-Packaged: 2018-01-20 19:45:06 UTC; juhyun-kim
-Date/Publication: 2018-01-21 17:08:37 UTC
+Packaged: 2018-10-19 16:32:58 UTC; juhyun-kim
+Date/Publication: 2018-10-19 17:20:03 UTC

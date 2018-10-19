@@ -47,16 +47,19 @@ setMethod("show", signature = "MGLMreg", function(object) {
       print(lapply(object@coefficients, round, digits))
     }
     cat("\n")
-    cat("Hypothesis test: \n")
     
-    if(any(object@test[, 2] < 1e-6 & object@test[, 2] > 0)) {
+    
+    cat("Hypothesis test: \n")
+    if (all(is.numeric(object@test[, 2]) & object@test[, 2] >= 1e-6)) {
+        test <- cbind(object@test[, 1], round(object@test[, 2], digits))
+    }
+    else {
       test <- cbind(object@test[, 1], object@test[, 2])
-    } else {
-      test <- cbind(object@test[, 1], round(object@test[, 2], digits))
     }
     colnames(test) <- colnames(object@test)
     print(test)
     cat("\n")
+    
     cat("Distribution: ", object@distribution, "\n", sep = "")
     cat("Log-likelihood: ", object@logL, "\n", sep = "")
     cat("BIC: ", object@BIC, "\n", sep = "")
