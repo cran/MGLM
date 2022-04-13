@@ -83,8 +83,8 @@ DMD.NegMN.fit <- function(data, init, weight, epsilon = 1e-08, maxiters = 150, d
     ##----------------------------------------## 
     ## Choose update
     check <- all(beta_Newton > 0) && all(pi_Newton > 0) && all(pi_Newton < 1) && 
-      all(pi2_Newton < 1) && all(pi2_Newton > 0) && (!is.nan(beta_Newton)) && 
-      (!is.nan(pi_Newton))
+      all(pi2_Newton < 1) && all(pi2_Newton > 0) && all(!is.nan(beta_Newton)) && 
+      all(!is.nan(pi_Newton))
     if (check) {
       LL_Newton <- sum(r * log(beta_Newton + k)) + sum(Xj * log(pi_Newton)) + 
         N * beta_Newton * log(pi2_Newton) - sum(lgamma(data + 1))

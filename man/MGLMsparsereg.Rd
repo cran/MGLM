@@ -5,11 +5,37 @@
 \alias{MGLMsparsereg.fit}
 \title{Fit multivariate GLM sparse regression}
 \usage{
-MGLMsparsereg(formula, data, dist, lambda, penalty, weight, init, penidx,
-  maxiters = 150, ridgedelta, epsilon = 1e-05, regBeta = FALSE, overdisp)
+MGLMsparsereg(
+  formula,
+  data,
+  dist,
+  lambda,
+  penalty,
+  weight,
+  init,
+  penidx,
+  maxiters = 150,
+  ridgedelta,
+  epsilon = 1e-05,
+  regBeta = FALSE,
+  overdisp
+)
 
-MGLMsparsereg.fit(Y, X, dist, lambda, penalty, weight, init, penidx,
-  maxiters = 150, ridgedelta, epsilon = 1e-05, regBeta = FALSE, overdisp)
+MGLMsparsereg.fit(
+  Y,
+  X,
+  dist,
+  lambda,
+  penalty,
+  weight,
+  init,
+  penidx,
+  maxiters = 150,
+  ridgedelta,
+  epsilon = 1e-05,
+  regBeta = FALSE,
+  overdisp
+)
 }
 \arguments{
 \item{formula}{an object of class \code{formula} (or one that can be coerced
@@ -138,7 +164,7 @@ set.seed(134)
 X <- matrix(rnorm(n*p),n, p)
 alpha <- matrix(0, p, d)
 alpha[c(1,3, 5), ] <- 1
-Alpha <- exp(X\\\%*\\\%alpha)
+Alpha <- exp(X\%*\%alpha)
 Y <- rdirmn(size=m, alpha=Alpha)
 
 ## Tuning

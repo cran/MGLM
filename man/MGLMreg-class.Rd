@@ -47,10 +47,10 @@ the fitted value.}
 \item{\code{gradient}}{object of class \code{"numeric"} or \code{"matrix"},
 the gradient at the estimated parameter values.}
 
-\item{\code{wald.value}}{object of class \code{"numeric"},
+\item{\code{wald.value}}{object of class \code{"numeric"} or \code{"logical"},
 the Wald statistics.}
 
-\item{\code{wald.p}}{object of class \code{"numeric"},
+\item{\code{wald.p}}{object of class \code{"numeric"} or \code{"logical"},
 the p values of Wald test.}
 
 \item{\code{Dof}}{object of class \code{"numeric"}, 

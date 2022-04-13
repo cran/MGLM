@@ -4,9 +4,25 @@
 \alias{MGLMtune}
 \title{Choose the tuning parameter value in sparse regression}
 \usage{
-MGLMtune(formula, data, dist, penalty, lambdas, ngridpt, warm.start = TRUE,
-  keep.path = FALSE, display = FALSE, init, weight, penidx, ridgedelta,
-  maxiters = 150, epsilon = 1e-05, regBeta = FALSE, overdisp)
+MGLMtune(
+  formula,
+  data,
+  dist,
+  penalty,
+  lambdas,
+  ngridpt,
+  warm.start = TRUE,
+  keep.path = FALSE,
+  display = FALSE,
+  init,
+  weight,
+  penidx,
+  ridgedelta,
+  maxiters = 150,
+  epsilon = 1e-05,
+  regBeta = FALSE,
+  overdisp
+)
 }
 \arguments{
 \item{formula}{an object of class \code{formula} (or one that can be coerced to that class): a symbolic description of the model to be fitted. The response has to be on the left hand side of ~.}

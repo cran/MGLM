@@ -5,13 +5,39 @@
 \alias{MGLMreg.fit}
 \title{Fit multivariate response GLM regression}
 \usage{
-MGLMreg(formula, data, dist, init = NULL, weight = NULL, epsilon = 1e-08,
-  maxiters = 150, display = FALSE, LRT = FALSE, parallel = FALSE,
-  cores = NULL, cl = NULL, sys = NULL, regBeta = FALSE)
+MGLMreg(
+  formula,
+  data,
+  dist,
+  init = NULL,
+  weight = NULL,
+  epsilon = 1e-08,
+  maxiters = 150,
+  display = FALSE,
+  LRT = FALSE,
+  parallel = FALSE,
+  cores = NULL,
+  cl = NULL,
+  sys = NULL,
+  regBeta = FALSE
+)
 
-MGLMreg.fit(Y, init = NULL, X, dist, weight = NULL, epsilon = 1e-08,
-  maxiters = 150, display = FALSE, LRT = FALSE, parallel = FALSE,
-  cores = NULL, cl = NULL, sys = NULL, regBeta = FALSE)
+MGLMreg.fit(
+  Y,
+  init = NULL,
+  X,
+  dist,
+  weight = NULL,
+  epsilon = 1e-08,
+  maxiters = 150,
+  display = FALSE,
+  LRT = FALSE,
+  parallel = FALSE,
+  cores = NULL,
+  cl = NULL,
+  sys = NULL,
+  regBeta = FALSE
+)
 }
 \arguments{
 \item{formula}{an object of class \code{formula} (or one that can be coerced to that class): a symbolic description of the model to be fitted. The response has to be on the left hand side of ~.}

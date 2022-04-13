@@ -8,17 +8,42 @@
 \alias{MGLMfit}
 \title{Fit multivariate discrete distributions}
 \usage{
-DMD.DM.fit(data, init, weight, epsilon = 1e-08, maxiters = 150,
-  display = FALSE)
+DMD.DM.fit(
+  data,
+  init,
+  weight,
+  epsilon = 1e-08,
+  maxiters = 150,
+  display = FALSE
+)
 
-DMD.GDM.fit(data, init, weight, epsilon = 1e-08, maxiters = 150,
-  display = FALSE)
+DMD.GDM.fit(
+  data,
+  init,
+  weight,
+  epsilon = 1e-08,
+  maxiters = 150,
+  display = FALSE
+)
 
-DMD.NegMN.fit(data, init, weight, epsilon = 1e-08, maxiters = 150,
-  display = FALSE)
+DMD.NegMN.fit(
+  data,
+  init,
+  weight,
+  epsilon = 1e-08,
+  maxiters = 150,
+  display = FALSE
+)
 
-MGLMfit(data, dist, init, weight, epsilon = 1e-08, maxiters = 150,
-  display = FALSE)
+MGLMfit(
+  data,
+  dist,
+  init,
+  weight,
+  epsilon = 1e-08,
+  maxiters = 150,
+  display = FALSE
+)
 }
 \arguments{
 \item{data}{a data frame or matrix containing the count data. 

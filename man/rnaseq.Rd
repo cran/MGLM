@@ -4,7 +4,7 @@
 \title{RNA-seq count data}
 \description{
 RNA-seq data simulated following the standard procedures
-(provided by Dr. Wei Sun, \url{wsun@bios.unc.edu}).
+(provided by Dr. Wei Sun, weisun@email.unc.edu).
 }
 \usage{rnaseq}
 \format{A data frame containing 10 columns and 100 rows. 
@@ -12,5 +12,5 @@ RNA-seq data simulated following the standard procedures
 		gene; the last four columns are the covariates:
 		age, gender, treatment, and total number of reads.
 }
-\source{Dr. Sun Wei <\url{wsun@bios.unc.edu}>}
+\source{Dr. Sun Wei, weisun@email.unc.edu}
 \keyword{dataset}

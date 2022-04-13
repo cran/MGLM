@@ -97,7 +97,7 @@
 #' \item{\code{BIC}}{ Bayesian information criterion.}
 #' \item{\code{Dof}}{ degrees of freedom of the estimated parameter.}
 #' \item{\code{iter}}{ number of iterations used. }
-#' \item{\code{maxlambda}}{ the maxmum tuning parameter such that 
+#' \item{\code{maxlambda}}{ the maximum tuning parameter such that 
 #' 	the estimated coefficients are not all zero.  This value is returned only
 #' 	when the tuning parameter \code{lambda} given to the function is large enough 
 #' 	such that all the parameter estimates are zero; otherwise, \code{maxlambda}
